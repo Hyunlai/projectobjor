@@ -2,5 +2,7 @@
 
 {% block content %}
     <h1>Welcome to Chinguloop!</h1>
-    <p>This is the homepage. Please log in or register to get started.</p>
+    {% if not user.is_authenticated %}
+        <p>Please log in or register to get started.</p>
+    {% endif %}
 {% endblock %}

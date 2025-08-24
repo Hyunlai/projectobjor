@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ profile.user.username }}'s Profile</h1>
+    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" width="150" height="150">
+    <p><strong>Bio:</strong> {{ profile.bio|default:"No bio yet." }}</p>
+    <p><a href="{% url 'profile_update' %}">Edit Profile</a></p>
+{% endblock %}
