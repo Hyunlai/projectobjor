@@ -2,11 +2,6 @@
 
 {% block content %}
     <h1>Welcome to Chinguloop!</h1>
-    {% if not user.is_authenticated %}
-        <p>Please log in or register to get started.</p>
-    {% endif %}
-
-    <hr>
 
     {% if posts %}
         <h2>Latest Posts</h2>
@@ -18,6 +13,7 @@
                     {% endif %}
                 </a>
                 <p style="display:inline;">Posted by <a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a> on {{ post.created_at|date:"F j, Y, P" }}</p>
+
                 {% if post.image %}
                     <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
                 {% endif %}
@@ -26,9 +22,57 @@
                 {% if request.user == post.author %}
                     <form method="post" action="{% url 'delete_post' post_id=post.id %}" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit">Delete</button>
+                        <button type="submit">Delete Post</button>
                     </form>
                 {% endif %}
+
+                <div style="margin-top: 20px;">
+                    <h4>Comments</h4>
+                    {% for comment in post.comments.all|dictsort:"created_at" %}
+                        {% if not comment.parent_comment %}
+                            <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px;">
+                                <p style="display:inline;"><strong>{{ comment.author.username }}</strong>: {{ comment.text }}</p>
+                                {% if request.user == comment.author %}
+                                    <form method="post" action="{% url 'delete_comment' comment_id=comment.id %}" style="display:inline; margin-left: 10px;">
+                                        {% csrf_token %}
+                                        <button type="submit">Delete</button>
+                                    </form>
+                                {% endif %}
+                                <a href="#" onclick="document.getElementById('reply-form-{{ comment.id }}').style.display='block';">Reply</a>
+
+                                <div id="reply-form-{{ comment.id }}" style="display:none; margin-left: 20px;">
+                                    <form method="post" action="{% url 'add_comment' post_id=post.id %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                        <textarea name="text" placeholder="Add a reply..." required></textarea>
+                                        <button type="submit">Reply</button>
+                                    </form>
+                                </div>
+                                {% for reply in comment.replies.all|dictsort:"created_at" %}
+                                    <div style="margin-left: 40px; border-left: 2px solid #eee; padding-left: 10px; margin-top: 5px;">
+                                        <p style="display:inline;"><strong>{{ reply.author.username }}</strong>: {{ reply.text }}</p>
+                                        {% if request.user == reply.author %}
+                                            <form method="post" action="{% url 'delete_comment' comment_id=reply.id %}" style="display:inline; margin-left: 10px;">
+                                                {% csrf_token %}
+                                                <button type="submit">Delete</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% empty %}
+                        <p>No comments yet.</p>
+                    {% endfor %}
+
+                    <div style="margin-top: 15px;">
+                        <form method="post" action="{% url 'add_comment' post_id=post.id %}">
+                            {% csrf_token %}
+                            <textarea name="text" placeholder="Add a comment..." required></textarea>
+                            <button type="submit">Comment</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         {% endfor %}
     {% else %}
