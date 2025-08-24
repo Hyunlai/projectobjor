@@ -17,6 +17,13 @@
                     <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
                 {% endif %}
                 <p>{{ post.caption }}</p>
+
+                {% if request.user == post.author %}
+                    <form method="post" action="{% url 'delete_post' post_id=post.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit">Delete</button>
+                    </form>
+                {% endif %}
             </div>
         {% endfor %}
     {% else %}
