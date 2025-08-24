@@ -8,7 +8,7 @@
         <a href="{% url 'home' %}">Home</a>
         {% if user.is_authenticated %}
             <span>Hello, {{ user.username }}!</span>
-            <a href="{% url 'profile' %}">Profile</a>
+            <a href="{% url 'profile' username=request.user.username %}">Profile</a>
             <form action="{% url 'logout' %}" method="post" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit" style="border: none; background: none; cursor: pointer; color: blue; text-decoration: underline; font-family: inherit; font-size: inherit;">Log Out</button>

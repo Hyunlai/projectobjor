@@ -1,8 +1,34 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>{{ profile.user.username }}'s Profile</h1>
-    <img src="{{ profile.profile_picture.url }}" alt="Profile Picture" width="150" height="150">
-    <p><strong>Bio:</strong> {{ profile.bio|default:"No bio yet." }}</p>
-    <p><a href="{% url 'profile_update' %}">Edit Profile</a></p>
+    <h1>{{ user.username }}'s Profile</h1>
+    <hr>
+    {% if user.profile.profile_picture %}
+        <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}'s profile picture" style="width: 150px; height: 150px; border-radius: 50%;">
+    {% else %}
+        <img src="#" alt="Default profile picture" style="width: 150px; height: 150px; border-radius: 50%;">
+    {% endif %}
+
+    {% if user != request.user %}
+        {% if is_following %}
+            <p>You are following this user.</p>
+            <form action="{% url 'unfollow_user' username=user.username %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Unfollow</button>
+            </form>
+        {% else %}
+            <form action="{% url 'follow_user' username=user.username %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Follow</button>
+            </form>
+        {% endif %}
+    {% else %}
+        <p><a href="{% url 'profile_update' %}">Update Profile</a></p>
+    {% endif %}
+
+    <p>Followers: {{ followers_count }} | Following: {{ following_count }}</p>
+
+    <h3>About Me</h3>
+    <p>{{ user.profile.bio }}</p>
+
 {% endblock %}

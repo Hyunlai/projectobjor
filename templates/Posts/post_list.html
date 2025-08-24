@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Latest Posts</h2>
+    {% for post in posts %}
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+            <p>Posted by {{ post.author.username }} on {{ post.created_at|date:"F j, Y, P" }}</p>
+            {% if post.image %}
+                <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
+            {% endif %}
+            <p>{{ post.caption }}</p>
+        </div>
+    {% empty %}
+        <p>No posts to display yet.</p>
+    {% endfor %}
+{% endblock %}
