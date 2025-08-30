@@ -27,6 +27,16 @@
                     <a href="{% url 'edit_post' post_id=post.id %}" style="margin-left: 10px;">Edit Post</a>
                 {% endif %}
 
+                <div style="margin-top: 10px;">
+                    <span>{{ post.react_count }} Reactions</span>
+                </div>
+                <a href="{% url 'add_reaction' post.id 'like' %}" class="btn btn-primary">
+                    {% if post.user_has_reacted %}
+                        Unlike
+                    {% else %}
+                        Like
+                    {% endif %}
+                </a>
                 <div style="margin-top: 20px;">
                     <h4>Comments</h4>
                     {% for comment in post.comments.all|dictsort:"created_at" %}

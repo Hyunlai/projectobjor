@@ -11,18 +11,16 @@ from Accounts.models import Follower
 @login_required
 def post_list(request):
     # Get a list of the users the current user is following
-    following_users_ids = Follower.objects.filter(follower=request.user).values_list('following', flat=True)
+    following_users = Follower.objects.filter(follower=request.user).values_list('following', flat=True)
 
-    # Manually filter the posts
-    all_posts = Post.objects.all().order_by('-created_at')
+    posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
 
-    visible_posts = []
+    # Add reaction info to each post
+    for post in posts:
+        post.react_count = post.react_set.count()
+        post.user_has_reacted = post.react_set.filter(user=request.user).exists()
 
-    for post in all_posts:
-        if post.author.id in following_users_ids or post.author == request.user:
-            visible_posts.append(post)
-
-    return render(request, 'Base/home.html', {'posts': visible_posts})
+    return render(request, 'Base/home.html', {'posts': posts})
 
 @login_required
 def create_post(request):
