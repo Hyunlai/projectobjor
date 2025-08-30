@@ -1,11 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.decorators import login_required
+
 from django.contrib.auth.models import User
-from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .forms import UserUpdateForm, ProfileUpdateForm
+
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, authenticate
+
+from Posts.models import Post, React
+from django.db.models import Count
 from .models import Follower
-from Posts.models import Post
 
 # Create your views here.
 
@@ -22,6 +26,7 @@ def register(request):
     return render(request, 'Accounts/register.html', {'form': form})
 
 
+@login_required
 def profile(request, username):
     user = get_object_or_404(User, username=username)
     is_following = False
@@ -31,7 +36,18 @@ def profile(request, username):
 
     # Only show posts if the current user is a follower or the author
     if request.user == user or is_following:
-        posts = Post.objects.filter(author=user).order_by('-created_at')
+        posts = Post.objects.filter(author=user).order_by('-created_at').prefetch_related('react_set')
+        # Add reaction info to each post
+        for post in posts:
+            # Get a count of each reaction type
+            reaction_counts = post.react_set.values('type').annotate(count=Count('type'))
+            post.reaction_counts = {item['type']: item['count'] for item in reaction_counts}
+
+            # Check if the user has a reaction
+            post.user_reacted_type = None
+            user_reaction = post.react_set.filter(user=request.user).first()
+            if user_reaction:
+                post.user_reacted_type = user_reaction.type
     else:
         posts = []  # If not a follower, show no posts
 
@@ -51,10 +67,23 @@ def profile(request, username):
 def profile_update(request):
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
+        # Pass request.FILES and instance to the profile form
         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
+
+            # Check if a new profile picture was uploaded
+            if request.FILES.get('profile_picture'):
+                caption = profile_form.cleaned_data.get('caption')
+
+                # Create a new post with the profile picture and caption
+                Post.objects.create(
+                    author=request.user,
+                    image=request.user.profile.profile_picture,
+                    caption=caption
+                )
+
             return redirect('profile', username=request.user.username)
     else:
         user_form = UserUpdateForm(instance=request.user)

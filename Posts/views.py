@@ -1,7 +1,7 @@
+from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .forms import PostForm, CommentForm
-from .models import Post, React, Comment
+from .models import Post, Comment, React
 from Accounts.models import Follower
 
 # Create your views here.
@@ -13,12 +13,20 @@ def post_list(request):
     # Get a list of the users the current user is following
     following_users = Follower.objects.filter(follower=request.user).values_list('following', flat=True)
 
-    posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
+    # Use prefetch_related to grab all reactions in one go for efficiency
+    posts = Post.objects.filter(author__in=following_users).order_by('-created_at').prefetch_related('react_set')
 
     # Add reaction info to each post
     for post in posts:
-        post.react_count = post.react_set.count()
-        post.user_has_reacted = post.react_set.filter(user=request.user).exists()
+        # Get a count of each reaction type
+        reaction_counts = post.react_set.values('type').annotate(count=Count('type'))
+        post.reaction_counts = {item['type']: item['count'] for item in reaction_counts}
+
+        # Check if the user has a reaction
+        post.user_reacted_type = None
+        user_reaction = post.react_set.filter(user=request.user).first()
+        if user_reaction:
+            post.user_reacted_type = user_reaction.type
 
     return render(request, 'Base/home.html', {'posts': posts})
 

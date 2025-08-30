@@ -28,15 +28,34 @@
                 {% endif %}
 
                 <div style="margin-top: 10px;">
-                    <span>{{ post.react_count }} Reactions</span>
+                    <span>{{ post.reaction_counts.like|default:0 }} Like(s)</span>
+                    <span>{{ post.reaction_counts.love|default:0 }} Love(s)</span>
+                    <span>{{ post.reaction_counts.haha|default:0 }} Haha(s)</span>
+                    <span>{{ post.reaction_counts.wow|default:0 }} Wow(s)</span>
+                    <span>{{ post.reaction_counts.cry|default:0 }} Cry(s)</span>
+                    <span>{{ post.reaction_counts.angry|default:0 }} Angry(s)</span>
+                    <span>{{ post.reaction_counts.dislike|default:0 }} Dislike(s)</span>
                 </div>
-                <a href="{% url 'add_reaction' post.id 'like' %}" class="btn btn-primary">
-                    {% if post.user_has_reacted %}
-                        Unlike
-                    {% else %}
-                        Like
-                    {% endif %}
-                </a>
+
+                <div style="margin-top: 5px;">
+                    <a href="{% url 'add_reaction' post.id 'like' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'like' %}lightblue{% endif %};">Like</a>
+                    <a href="{% url 'add_reaction' post.id 'love' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'love' %}pink{% endif %};">Love</a>
+                    <a href="{% url 'add_reaction' post.id 'haha' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'haha' %}yellow{% endif %};">Haha</a>
+                    <a href="{% url 'add_reaction' post.id 'wow' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'wow' %}orange{% endif %};">Wow</a>
+                    <a href="{% url 'add_reaction' post.id 'cry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'cry' %}gray{% endif %};">Cry</a>
+                    <a href="{% url 'add_reaction' post.id 'angry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'angry' %}red{% endif %};">Angry</a>
+                    <a href="{% url 'add_reaction' post.id 'dislike' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'dislike' %}black{% endif %};">Dislike</a>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <details>
+                        <summary><h4>View Reactions</h4></summary>
+                        {% for reaction in post.react_set.all %}
+                            <p style="margin: 0;">{{ reaction.user.username }} reacted with "{{ reaction.type }}"</p>
+                        {% endfor %}
+                    </details>
+                </div>
+
                 <div style="margin-top: 20px;">
                     <h4>Comments</h4>
                     {% for comment in post.comments.all|dictsort:"created_at" %}
