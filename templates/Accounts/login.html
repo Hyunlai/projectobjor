@@ -1,11 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Log In</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Log In</button>
-</form>
-<p>Don't have an account? <a href="{% url 'register' %}">Register Here</a></p>
+    <h1>Log In</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="id_username">Username:</label>
+        <input type="text" name="username" id="id_username" required>
+        <br>
+        <label for="id_password">Password:</label>
+        <input type="password" name="password" id="id_password" required>
+        <button type="button" onclick="togglePasswordVisibility('id_password')">Show/Hide</button>
+        <br>
+        <button type="submit">Log In</button>
+    </form>
+    <p>Don't have an account? <a href="{% url 'register' %}">Register Here</a></p>
+
+    <script>
+        function togglePasswordVisibility(fieldId) {
+            var passwordField = document.getElementById(fieldId);
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+            } else {
+                passwordField.type = "password";
+            }
+        }
+    </script>
 {% endblock %}

@@ -11,7 +11,6 @@
 
     {% if user != request.user %}
         {% if is_following %}
-            <p>You are following this user.</p>
             <form action="{% url 'unfollow_user' username=user.username %}" method="post">
                 {% csrf_token %}
                 <button type="submit">Unfollow</button>
@@ -30,5 +29,20 @@
 
     <h3>About Me</h3>
     <p>{{ user.profile.bio }}</p>
+
+    <div style="margin-top: 20px;">
+        <h2>Posts</h2>
+        {% for post in posts %}
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
+                {% endif %}
+                <p>{{ post.caption }}</p>
+                <p><small>Posted on {{ post.created_at|date:"F j, Y, P" }}</small></p>
+            </div>
+        {% empty %}
+            <p>{{ user.username }} has not created any posts yet.</p>
+        {% endfor %}
+    </div>
 
 {% endblock %}

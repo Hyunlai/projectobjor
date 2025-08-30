@@ -24,6 +24,7 @@
                         {% csrf_token %}
                         <button type="submit">Delete Post</button>
                     </form>
+                    <a href="{% url 'edit_post' post_id=post.id %}" style="margin-left: 10px;">Edit Post</a>
                 {% endif %}
 
                 <div style="margin-top: 20px;">

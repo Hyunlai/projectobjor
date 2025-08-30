@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate
 from .forms import UserUpdateForm, ProfileUpdateForm
-from .models import Profile, Follower
+from .models import Follower
+from Posts.models import Post
 
 # Create your views here.
 
@@ -14,31 +15,37 @@ def register(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('profile', username=user.username)  # Add this redirect
+            return redirect('profile', username=user.username)
     else:
         form = UserCreationForm()
 
     return render(request, 'Accounts/register.html', {'form': form})
 
-@login_required
+
 def profile(request, username):
     user = get_object_or_404(User, username=username)
-    profile_instance = get_object_or_404(Profile, user=user)
+    is_following = False
 
-    is_following = Follower.objects.filter(follower=request.user, following=user).exists()
+    if request.user.is_authenticated:
+        is_following = Follower.objects.filter(follower=request.user, following=user).exists()
+
+    # Only show posts if the current user is a follower or the author
+    if request.user == user or is_following:
+        posts = Post.objects.filter(author=user).order_by('-created_at')
+    else:
+        posts = []  # If not a follower, show no posts
+
     followers_count = Follower.objects.filter(following=user).count()
     following_count = Follower.objects.filter(follower=user).count()
 
     context = {
         'user': user,
-        'profile': profile_instance,
         'is_following': is_following,
         'followers_count': followers_count,
-        'following_count': following_count
+        'following_count': following_count,
+        'posts': posts
     }
-
     return render(request, 'Accounts/profile.html', context)
-
 
 @login_required
 def profile_update(request):
