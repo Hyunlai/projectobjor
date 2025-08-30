@@ -5,12 +5,26 @@ from django.contrib.auth.models import User
 
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='post_images', null=True, blank=True)
-    caption = models.TextField(blank=True)
+    image = models.ImageField(upload_to='post_images/')
+    caption = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'Post by {self.author.username} at {self.created_at.strftime("%Y-%m-%d %H:%M")}'
+        return f"Post by {self.author.username} at {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+
+class React(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey('Post', on_delete=models.CASCADE)
+    # The 'type' of reaction: 'like', 'love', 'haha', etc.
+    type = models.CharField(max_length=10)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # This ensures a user can only react once per post, for a given type of reaction
+        unique_together = ('user', 'post', 'type')
+
+    def __str__(self):
+        return f"{self.user.username} {self.type}s {self.post.id}"
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')

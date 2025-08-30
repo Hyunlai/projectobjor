@@ -1,13 +1,28 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import PostForm, CommentForm
-from .models import Post, Comment
+from .models import Post, React, Comment
+from Accounts.models import Follower
 
 # Create your views here.
 
+# post_list does not filter follower's only posts in homepage
+
+@login_required
 def post_list(request):
-    posts = Post.objects.all().order_by('-created_at')
-    return render(request, 'Posts/post_list.html', {'posts': posts})
+    # Get a list of the users the current user is following
+    following_users_ids = Follower.objects.filter(follower=request.user).values_list('following', flat=True)
+
+    # Manually filter the posts
+    all_posts = Post.objects.all().order_by('-created_at')
+
+    visible_posts = []
+
+    for post in all_posts:
+        if post.author.id in following_users_ids or post.author == request.user:
+            visible_posts.append(post)
+
+    return render(request, 'Base/home.html', {'posts': visible_posts})
 
 @login_required
 def create_post(request):
@@ -17,22 +32,50 @@ def create_post(request):
             post = form.save(commit=False)
             post.author = request.user
             post.save()
-            return redirect('home')
+            return redirect('post_list')
     else:
         form = PostForm()
-
     return render(request, 'Posts/create_post.html', {'form': form})
+
+@login_required
+def edit_post(request, post_id):
+    post = get_object_or_404(Post, pk=post_id, author=request.user)
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    else:
+        form = PostForm(instance=post)
+
+    return render(request, 'Posts/edit_post.html', {'form': form, 'post': post})
 
 @login_required
 def delete_post(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
 
-    # Check if the logged-in user is the author of the post
+    # Checks if the logged-in user is the author of the post
     if request.user == post.author:
         post.delete()
 
     return redirect('home')
 
+@login_required
+def add_reaction(request, post_id, reaction_type):
+    post = get_object_or_404(Post, pk=post_id)
+    react_query = React.objects.filter(post=post, user=request.user, type=reaction_type)
+
+    if react_query.exists():
+        # If the user has already reacted with this type, remove the reaction
+        react_query.delete()
+    else:
+        # If not, add the new reaction
+        # This will remove any existing reactions of a different type
+        # For a single reaction per user per post, you would first delete any existing reaction here
+        React.objects.create(post=post, user=request.user, type=reaction_type)
+
+    # Redirect back to the homepage
+    return redirect('post_list')
 
 @login_required
 def add_comment(request, post_id):
@@ -44,14 +87,16 @@ def add_comment(request, post_id):
             comment.post = post
             comment.author = request.user
 
-            # Check for a parent comment ID to handle replies
+            # Checks for a parent comment ID to handle replies
             parent_id = request.POST.get('parent_id')
             if parent_id:
                 parent_comment = get_object_or_404(Comment, pk=parent_id)
                 comment.parent_comment = parent_comment
 
             comment.save()
+
             return redirect('home')
+
     return redirect('home')
 
 @login_required
