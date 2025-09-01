@@ -34,22 +34,17 @@ def profile(request, username):
     if request.user.is_authenticated:
         is_following = Follower.objects.filter(follower=request.user, following=user).exists()
 
-    # Only show posts if the current user is a follower or the author
     if request.user == user or is_following:
-        posts = Post.objects.filter(author=user).order_by('-created_at').prefetch_related('react_set')
-        # Add reaction info to each post
+        posts = Post.objects.filter(author=user).order_by('-created_at')
         for post in posts:
-            # Get a count of each reaction type
             reaction_counts = post.react_set.values('type').annotate(count=Count('type'))
             post.reaction_counts = {item['type']: item['count'] for item in reaction_counts}
-
-            # Check if the user has a reaction
             post.user_reacted_type = None
             user_reaction = post.react_set.filter(user=request.user).first()
             if user_reaction:
                 post.user_reacted_type = user_reaction.type
     else:
-        posts = []  # If not a follower, show no posts
+        posts = []
 
     followers_count = Follower.objects.filter(following=user).count()
     following_count = Follower.objects.filter(follower=user).count()
@@ -62,7 +57,6 @@ def profile(request, username):
         'posts': posts
     }
     return render(request, 'Accounts/profile.html', context)
-
 
 @login_required
 def profile_update(request):

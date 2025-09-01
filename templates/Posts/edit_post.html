@@ -1,10 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Edit Post</h1>
+    <h2>Edit Post</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Update Post</button>
+        {{ form.caption }}
+        {{ form.image }}
+        
+        {% if post.image %}
+            <p>Current Image: <img src="{{ post.image.url }}" alt="{{ post.caption }}" style="max-width:200px;"></p>
+            <p>{{ form.clear_image }} {{ form.clear_image.label_tag }}</p>
+        {% endif %}
+        
+        <button type="submit">Update</button>
     </form>
 {% endblock %}
