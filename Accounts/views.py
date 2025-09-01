@@ -63,6 +63,7 @@ def profile(request, username):
     }
     return render(request, 'Accounts/profile.html', context)
 
+
 @login_required
 def profile_update(request):
     if request.method == 'POST':
