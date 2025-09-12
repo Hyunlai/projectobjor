@@ -42,7 +42,6 @@ This is a list of known bugs that we have decided to set aside for now but need 
 - **Homepage Post Visibility:** The `post_list` function on the homepage currently does not filter to include the current user's own posts, only posts from followed users.
 - **Reaction Counters:** The reaction counters on the homepage are not always working correctly and may display a count of `0` even when a post has reactions. This is due to an inefficient database query.
 
-Of course. Here is a professionally rephrased guide for your groupmates.
 
 -----
 
