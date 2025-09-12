@@ -4,8 +4,11 @@
     <h2>Update Profile</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ user_form.as_p }}
-        {{ profile_form.as_p }}
+        <p>Username: {{ user_form.username }}</p>
+        <p>Email: {{ user_form.email }}</p>
+
+        <p>Bio: {{ profile_form.bio }}</p>
+        <p>Profile Picture: {{ profile_form.profile_picture }}</p>
 
         {% if user.profile.profile_picture %}
             <p>Current Profile Picture:</p>
