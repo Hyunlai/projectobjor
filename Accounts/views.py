@@ -57,27 +57,22 @@ def profile(request, username):
 def profile_update(request):
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
-        # Pass request.FILES and instance to the profile form
         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
 
-            # Check if a new profile picture was uploaded
             if request.FILES.get('profile_picture'):
-                # Determine the caption based on whether a picture existed before
                 if request.user.profile.profile_picture:
                     caption_text = f"{request.user.username} has updated their profile picture"
                 else:
                     caption_text = f"{request.user.username} has uploaded a profile"
 
-                # Create a new post with the profile picture and the determined caption
                 Post.objects.create(
                     author=request.user,
                     image=request.user.profile.profile_picture,
                     caption=caption_text
                 )
-            # Check if the user wants to clear the existing profile picture
             elif profile_form.cleaned_data.get('clear_profile_picture'):
                 request.user.profile.profile_picture = None
                 request.user.profile.save()

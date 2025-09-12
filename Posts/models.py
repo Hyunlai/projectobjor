@@ -15,12 +15,10 @@ class Post(models.Model):
 class React(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey('Post', on_delete=models.CASCADE)
-    # The 'type' of reaction: 'like', 'love', 'haha', etc.
     type = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # This ensures a user can only react once per post, for a given type of reaction
         unique_together = ('user', 'post', 'type')
 
     def __str__(self):
