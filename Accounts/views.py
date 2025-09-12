@@ -1,12 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .forms import UserUpdateForm, ProfileUpdateForm
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
-
 from Posts.models import Post, React
 from django.db.models import Count
 from .models import Follower
@@ -22,9 +19,7 @@ def register(request):
             return redirect('profile', username=user.username)
     else:
         form = UserCreationForm()
-
     return render(request, 'Accounts/register.html', {'form': form})
-
 
 @login_required
 def profile(request, username):
@@ -70,13 +65,14 @@ def profile_update(request):
 
             # Check if a new profile picture was uploaded
             if request.FILES.get('profile_picture'):
-                caption = profile_form.cleaned_data.get('caption')
+                # Set the default caption with the user's username
+                caption_text = f"{request.user.username} has uploaded their Profile Picture"
 
-                # Create a new post with the profile picture and caption
+                # Create a new post with the profile picture and the default caption
                 Post.objects.create(
                     author=request.user,
                     image=request.user.profile.profile_picture,
-                    caption=caption
+                    caption=caption_text
                 )
 
             return redirect('profile', username=request.user.username)
@@ -114,5 +110,4 @@ def custom_login(request):
                 return redirect('profile', username=user.username)
     else:
         form = AuthenticationForm()
-
     return render(request, 'Accounts/login.html', {'form': form})
