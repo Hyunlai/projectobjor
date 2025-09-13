@@ -4,10 +4,21 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 class Post(models.Model):
+    VISIBILITY_CHOICES = [
+        ('PUBLIC', 'Public'),
+        ('FOLLOWERS', 'Followers Only'),
+    ]
+
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='post_images/')
     caption = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    visibility = models.CharField(
+        max_length=10,
+        choices=VISIBILITY_CHOICES,
+        default='PUBLIC',
+    )
 
     def __str__(self):
         return f"Post by {self.author.username} at {self.created_at.strftime('%Y-%m-%d %H:%M')}"

@@ -6,6 +6,7 @@
         {% csrf_token %}
         {{ form.caption }}
         {{ form.image }}
+        {{ form.visibility }}
         
         {% if post.image %}
             <p>Current Image: <img src="{{ post.image.url }}" alt="{{ post.caption }}" style="max-width:200px;"></p>

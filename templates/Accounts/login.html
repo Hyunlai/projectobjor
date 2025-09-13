@@ -3,6 +3,7 @@
 {% block content %}
     <h1>Log In</h1>
     <form method="post">
+
         {% csrf_token %}
         <label for="id_username">Username:</label>
         <input type="text" name="username" id="id_username" required>
@@ -18,9 +19,12 @@
     <script>
         function togglePasswordVisibility(fieldId) {
             var passwordField = document.getElementById(fieldId);
-            if (passwordField.type === "password") {
+            if (passwordField.type === "password")
+            {
                 passwordField.type = "text";
-            } else {
+            }
+            else
+            {
                 passwordField.type = "password";
             }
         }

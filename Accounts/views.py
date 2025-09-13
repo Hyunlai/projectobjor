@@ -7,6 +7,7 @@ from django.contrib.auth import login, authenticate
 from Posts.models import Post, React
 from django.db.models import Count
 from .models import Follower
+from django.db.models import Q
 
 # Create your views here.
 
@@ -24,22 +25,23 @@ def register(request):
 @login_required
 def profile(request, username):
     user = get_object_or_404(User, username=username)
-    is_following = False
+    is_following = Follower.objects.filter(follower=request.user, following=user).exists()
 
-    if request.user.is_authenticated:
-        is_following = Follower.objects.filter(follower=request.user, following=user).exists()
-
-    if request.user == user or is_following:
+    if request.user == user:
         posts = Post.objects.filter(author=user).order_by('-created_at')
-        for post in posts:
-            reaction_counts = post.react_set.values('type').annotate(count=Count('type'))
-            post.reaction_counts = {item['type']: item['count'] for item in reaction_counts}
-            post.user_reacted_type = None
-            user_reaction = post.react_set.filter(user=request.user).first()
-            if user_reaction:
-                post.user_reacted_type = user_reaction.type
+    elif is_following:
+        posts = Post.objects.filter(author=user).order_by('-created_at')
     else:
-        posts = []
+        posts = Post.objects.filter(author=user, visibility='PUBLIC').order_by('-created_at')
+
+    for post in posts:
+        reaction_counts = post.react_set.values('type').annotate(count=Count('type'))
+        post.reaction_counts = {item['type']: item['count'] for item in reaction_counts}
+
+        post.user_reacted_type = None
+        user_reaction = post.react_set.filter(user=request.user).first()
+        if user_reaction:
+            post.user_reacted_type = user_reaction.type
 
     followers_count = Follower.objects.filter(following=user).count()
     following_count = Follower.objects.filter(follower=user).count()
@@ -55,6 +57,8 @@ def profile(request, username):
 
 @login_required
 def profile_update(request):
+    current_profile_picture = request.user.profile.profile_picture
+
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
         profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
@@ -63,7 +67,7 @@ def profile_update(request):
             profile_form.save()
 
             if request.FILES.get('profile_picture'):
-                if request.user.profile.profile_picture:
+                if current_profile_picture:
                     caption_text = f"{request.user.username} has updated their profile picture"
                 else:
                     caption_text = f"{request.user.username} has uploaded a profile"
