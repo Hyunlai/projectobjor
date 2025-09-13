@@ -34,6 +34,10 @@
         <h2>Posts</h2>
         {% for post in posts %}
             <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+                {% if post.original_post %}
+                    <p>Shared from <a href="{% url 'profile' username=post.original_post.author.username %}">{{ post.original_post.author.username }}'s</a> post.</p>
+                {% endif %}
+
                 {% if post.image %}
                     <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
                 {% endif %}
@@ -58,6 +62,8 @@
                     <a href="{% url 'add_reaction' post.id 'angry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'angry' %}red{% endif %};">Angry</a>
                     <a href="{% url 'add_reaction' post.id 'dislike' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'dislike' %}black{% endif %};">Dislike</a>
                 </div>
+
+                <a href="{% url 'share_post' post.id %}">Share</a>
 
                 <div style="margin-top: 15px;">
                     <details>

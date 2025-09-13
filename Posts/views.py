@@ -13,15 +13,13 @@ from django.core.files.storage import default_storage
 def post_list(request):
     following_users = Follower.objects.filter(follower=request.user).values_list('following', flat=True)
 
-    public_posts = Post.objects.filter(visibility='PUBLIC')
-    follower_posts = Post.objects.filter(
-        Q(author__in=following_users) & Q(visibility='FOLLOWERS')
-    )
+    posts = Post.objects.filter(
+        Q(visibility='PUBLIC') |
+        Q(author__in=following_users, visibility='FOLLOWERS') |
+        Q(author=request.user)
+    ).order_by('-created_at').prefetch_related('react_set')
 
-    all_posts = list(set(list(public_posts) + list(follower_posts)))
-    all_posts.sort(key=lambda post: post.created_at, reverse=True)
-
-    for post in all_posts:
+    for post in posts:
         reaction_counts = post.react_set.values('type').annotate(count=Count('type'))
         post.reaction_counts = {item['type']: item['count'] for item in reaction_counts}
 
@@ -30,7 +28,7 @@ def post_list(request):
         if user_reaction:
             post.user_reacted_type = user_reaction.type
 
-    return render(request, 'Base/home.html', {'posts': all_posts})
+    return render(request, 'Base/home.html', {'posts': posts})
 
 @login_required
 def create_post(request):
@@ -44,6 +42,24 @@ def create_post(request):
     else:
         form = PostForm()
     return render(request, 'Posts/create_post.html', {'form': form})
+
+@login_required
+def share_post(request, post_id):
+    original_post = get_object_or_404(Post, pk=post_id)
+
+    if request.method == 'POST':
+        caption = request.POST.get('caption', '')
+
+        Post.objects.create(
+            author=request.user,
+            caption=caption,
+            image=original_post.image if original_post.image else None,
+            visibility=original_post.visibility,
+            original_post=original_post
+        )
+        return redirect('post_list')
+
+    return render(request, 'Posts/share_post.html', {'original_post': original_post})
 
 @login_required
 def edit_post(request, post_id):

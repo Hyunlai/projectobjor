@@ -13,11 +13,17 @@ class Post(models.Model):
     image = models.ImageField(upload_to='post_images/')
     caption = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-
     visibility = models.CharField(
         max_length=10,
         choices=VISIBILITY_CHOICES,
         default='PUBLIC',
+    )
+    original_post = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='shared_posts'
     )
 
     def __str__(self):

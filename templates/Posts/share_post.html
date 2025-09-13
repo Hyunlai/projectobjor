@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Share Post</h2>
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+        <h3>Original Post by {{ original_post.author.username }}</h3>
+        <p>{{ original_post.caption }}</p>
+        {% if original_post.image %}
+            <img src="{{ original_post.image.url }}" alt="Original Post Image" style="max-width: 100%;">
+        {% endif %}
+        <p><small>Posted on: {{ original_post.created_at }}</small></p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <label for="id_caption">Add a caption to your share:</label>
+            <textarea name="caption" id="id_caption" rows="4" cols="50"></textarea>
+        </p>
+        <button type="submit">Share</button>
+        <a href="{% url 'home' %}">Cancel</a>
+    </form>
+{% endblock %}
