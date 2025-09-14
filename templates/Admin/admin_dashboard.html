@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Admin Dashboard</h2>
+    {% for post in posts %}
+        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+            <h3>Post by {{ post.author.username }}</h3>
+            <p><strong>Caption:</strong> {{ post.caption }}</p>
+            {% if post.image %}
+                <img src="{{ post.image.url }}" style="max-width: 100%;">
+            {% endif %}
+            <a href="#">Delete</a>
+            <a href="#">Approve</a>
+        </div>
+    {% endfor %}
+{% endblock %}
