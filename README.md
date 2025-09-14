@@ -46,6 +46,5 @@ These features were not part of the original proposal but have been implemented 
   - The homepage feed is not correctly filtering posts based on their visibility.
   - The "shared post" does not indicate it is a shared post.
 
-
 - **Post Reaction Counters**
   - The reaction counters may display an incorrect count of zero due to an inefficient database query.
