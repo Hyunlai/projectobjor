@@ -49,3 +49,7 @@ These features were not part of the original proposal but have been implemented 
 
 - **Post Reaction Counters**
   - The reaction counters may display an incorrect count of zero due to an inefficient database query.
+ 
+
+- **Share Button**
+  - The homepage feed does not display the share button but it displays the button when viewed in the profile. 
