@@ -3,6 +3,12 @@
 {% block content %}
     <h1>Welcome to Chinguloop!</h1>
 
+    {% if request.user.profile.is_banned %}
+        <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px;">
+            <p>Your account is currently banned. You can view posts but are unable to create, share, react, or comment.</p>
+        </div>
+    {% endif %}
+
     {% if posts %}
         <h2>Latest Posts</h2>
         {% for post in posts %}
@@ -14,95 +20,103 @@
                 </a>
                 <p style="display:inline;">Posted by <a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a> on {{ post.created_at|date:"F j, Y, P" }}</p>
 
+                {% if post.original_post %}
+                    <p>Shared from <a href="{% url 'profile' username=post.original_post.author.username %}">{{ post.original_post.author.username }}'s</a> post.</p>
+                {% endif %}
+
                 {% if post.image %}
                     <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
                 {% endif %}
                 <p>{{ post.caption }}</p>
 
-                {% if request.user == post.author %}
-                    <form method="post" action="{% url 'delete_post' post_id=post.id %}" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit">Delete Post</button>
-                    </form>
-                    <a href="{% url 'edit_post' post_id=post.id %}" style="margin-left: 10px;">Edit Post</a>
-                {% endif %}
+                {% if not request.user.profile.is_banned %}
+                    {% if request.user == post.author %}
+                        <form method="post" action="{% url 'delete_post' post_id=post.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">Delete Post</button>
+                        </form>
+                        <a href="{% url 'edit_post' post_id=post.id %}" style="margin-left: 10px;">Edit Post</a>
+                    {% endif %}
 
-                <div style="margin-top: 10px;">
-                    <span>{{ post.reaction_counts.like|default:0 }} Like(s)</span>
-                    <span>{{ post.reaction_counts.love|default:0 }} Love(s)</span>
-                    <span>{{ post.reaction_counts.haha|default:0 }} Haha(s)</span>
-                    <span>{{ post.reaction_counts.wow|default:0 }} Wow(s)</span>
-                    <span>{{ post.reaction_counts.cry|default:0 }} Cry(s)</span>
-                    <span>{{ post.reaction_counts.angry|default:0 }} Angry(s)</span>
-                    <span>{{ post.reaction_counts.dislike|default:0 }} Dislike(s)</span>
-                </div>
+                    <a href="{% url 'share_post' post.id %}">Share</a>
 
-                <div style="margin-top: 5px;">
-                    <a href="{% url 'add_reaction' post.id 'like' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'like' %}lightblue{% endif %};">Like</a>
-                    <a href="{% url 'add_reaction' post.id 'love' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'love' %}pink{% endif %};">Love</a>
-                    <a href="{% url 'add_reaction' post.id 'haha' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'haha' %}yellow{% endif %};">Haha</a>
-                    <a href="{% url 'add_reaction' post.id 'wow' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'wow' %}orange{% endif %};">Wow</a>
-                    <a href="{% url 'add_reaction' post.id 'cry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'cry' %}gray{% endif %};">Cry</a>
-                    <a href="{% url 'add_reaction' post.id 'angry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'angry' %}red{% endif %};">Angry</a>
-                    <a href="{% url 'add_reaction' post.id 'dislike' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'dislike' %}black{% endif %};">Dislike</a>
-                </div>
+                    <div style="margin-top: 10px;">
+                        <span>{{ post.reaction_counts.like|default:0 }} Like(s)</span>
+                        <span>{{ post.reaction_counts.love|default:0 }} Love(s)</span>
+                        <span>{{ post.reaction_counts.haha|default:0 }} Haha(s)</span>
+                        <span>{{ post.reaction_counts.wow|default:0 }} Wow(s)</span>
+                        <span>{{ post.reaction_counts.cry|default:0 }} Cry(s)</span>
+                        <span>{{ post.reaction_counts.angry|default:0 }} Angry(s)</span>
+                        <span>{{ post.reaction_counts.dislike|default:0 }} Dislike(s)</span>
+                    </div>
 
-                <div style="margin-top: 15px;">
-                    <details>
-                        <summary><h4>View Reactions</h4></summary>
-                        {% for reaction in post.react_set.all %}
-                            <p style="margin: 0;">{{ reaction.user.username }} reacted with "{{ reaction.type }}"</p>
-                        {% endfor %}
-                    </details>
-                </div>
-
-                <div style="margin-top: 20px;">
-                    <h4>Comments</h4>
-                    {% for comment in post.comments.all|dictsort:"created_at" %}
-                        {% if not comment.parent_comment %}
-                            <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px;">
-                                <p style="display:inline;"><strong>{{ comment.author.username }}</strong>: {{ comment.text }}</p>
-                                {% if request.user == comment.author %}
-                                    <form method="post" action="{% url 'delete_comment' comment_id=comment.id %}" style="display:inline; margin-left: 10px;">
-                                        {% csrf_token %}
-                                        <button type="submit">Delete</button>
-                                    </form>
-                                {% endif %}
-                                <a href="#" onclick="document.getElementById('reply-form-{{ comment.id }}').style.display='block';">Reply</a>
-
-                                <div id="reply-form-{{ comment.id }}" style="display:none; margin-left: 20px;">
-                                    <form method="post" action="{% url 'add_comment' post_id=post.id %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                                        <textarea name="text" placeholder="Add a reply..." required></textarea>
-                                        <button type="submit">Reply</button>
-                                    </form>
-                                </div>
-                                {% for reply in comment.replies.all|dictsort:"created_at" %}
-                                    <div style="margin-left: 40px; border-left: 2px solid #eee; padding-left: 10px; margin-top: 5px;">
-                                        <p style="display:inline;"><strong>{{ reply.author.username }}</strong>: {{ reply.text }}</p>
-                                        {% if request.user == reply.author %}
-                                            <form method="post" action="{% url 'delete_comment' comment_id=reply.id %}" style="display:inline; margin-left: 10px;">
-                                                {% csrf_token %}
-                                                <button type="submit">Delete</button>
-                                            </form>
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    {% empty %}
-                        <p>No comments yet.</p>
-                    {% endfor %}
+                    <div style="margin-top: 5px;">
+                        <a href="{% url 'add_reaction' post.id 'like' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'like' %}lightblue{% endif %};">Like</a>
+                        <a href="{% url 'add_reaction' post.id 'love' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'love' %}pink{% endif %};">Love</a>
+                        <a href="{% url 'add_reaction' post.id 'haha' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'haha' %}yellow{% endif %};">Haha</a>
+                        <a href="{% url 'add_reaction' post.id 'wow' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'wow' %}orange{% endif %};">Wow</a>
+                        <a href="{% url 'add_reaction' post.id 'cry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'cry' %}gray{% endif %};">Cry</a>
+                        <a href="{% url 'add_reaction' post.id 'angry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'angry' %}red{% endif %};">Angry</a>
+                        <a href="{% url 'add_reaction' post.id 'dislike' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'dislike' %}black{% endif %};">Dislike</a>
+                    </div>
 
                     <div style="margin-top: 15px;">
-                        <form method="post" action="{% url 'add_comment' post_id=post.id %}">
-                            {% csrf_token %}
-                            <textarea name="text" placeholder="Add a comment..." required></textarea>
-                            <button type="submit">Comment</button>
-                        </form>
+                        <details>
+                            <summary><h4>View Reactions</h4></summary>
+                            {% for reaction in post.react_set.all %}
+                                <p style="margin: 0;">{{ reaction.user.username }} reacted with "{{ reaction.type }}"</p>
+                            {% endfor %}
+                        </details>
                     </div>
-                </div>
+
+                    <div style="margin-top: 20px;">
+                        <h4>Comments</h4>
+                        {% for comment in post.comments.all|dictsort:"created_at" %}
+                            {% if not comment.parent_comment %}
+                                <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px;">
+                                    <p style="display:inline;"><strong>{{ comment.author.username }}</strong>: {{ comment.text }}</p>
+                                    {% if request.user == comment.author %}
+                                        <form method="post" action="{% url 'delete_comment' comment_id=comment.id %}" style="display:inline; margin-left: 10px;">
+                                            {% csrf_token %}
+                                            <button type="submit">Delete</button>
+                                        </form>
+                                    {% endif %}
+                                    <a href="#" onclick="document.getElementById('reply-form-{{ comment.id }}').style.display='block';">Reply</a>
+
+                                    <div id="reply-form-{{ comment.id }}" style="display:none; margin-left: 20px;">
+                                        <form method="post" action="{% url 'add_comment' post_id=post.id %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                            <textarea name="text" placeholder="Add a reply..." required></textarea>
+                                            <button type="submit">Reply</button>
+                                        </form>
+                                    </div>
+                                    {% for reply in comment.replies.all|dictsort:"created_at" %}
+                                        <div style="margin-left: 40px; border-left: 2px solid #eee; padding-left: 10px; margin-top: 5px;">
+                                            <p style="display:inline;"><strong>{{ reply.author.username }}</strong>: {{ reply.text }}</p>
+                                            {% if request.user == reply.author %}
+                                                <form method="post" action="{% url 'delete_comment' comment_id=reply.id %}" style="display:inline; margin-left: 10px;">
+                                                    {% csrf_token %}
+                                                    <button type="submit">Delete</button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% empty %}
+                            <p>No comments yet.</p>
+                        {% endfor %}
+
+                        <div style="margin-top: 15px;">
+                            <form method="post" action="{% url 'add_comment' post_id=post.id %}">
+                                {% csrf_token %}
+                                <textarea name="text" placeholder="Add a comment..." required></textarea>
+                                <button type="submit">Comment</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         {% endfor %}
     {% else %}

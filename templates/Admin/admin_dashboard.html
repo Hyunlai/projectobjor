@@ -1,16 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>Admin Dashboard</h2>
+    <h2>Moderation Dashboard</h2>
     {% for post in posts %}
         <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
-            <h3>Post by {{ post.author.username }}</h3>
+            <h3>Post by <a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a></h3>
             <p><strong>Caption:</strong> {{ post.caption }}</p>
             {% if post.image %}
                 <img src="{{ post.image.url }}" style="max-width: 100%;">
             {% endif %}
-            <a href="#">Delete</a>
-            <a href="#">Approve</a>
+            <a href="{% url 'admin_delete_post' post.id %}">Delete Post</a>
+
+            {% if post.author.profile.is_banned %}
+                <a href="{% url 'unban_user' username=post.author.username %}">Unban User</a>
+            {% else %}
+                <a href="{% url 'ban_user' username=post.author.username %}">Ban User</a>
+            {% endif %}
         </div>
     {% endfor %}
 {% endblock %}

@@ -6,8 +6,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from Posts.models import Post, React
 from django.db.models import Count
-from .models import Follower
+from .models import Profile, Follower
 from django.db.models import Q
+from Admin.models import Admin
 
 # Create your views here.
 
@@ -22,42 +23,35 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'Accounts/register.html', {'form': form})
 
-@login_required
 def profile(request, username):
     user = get_object_or_404(User, username=username)
-    is_following = Follower.objects.filter(follower=request.user, following=user).exists()
+    is_following = False
 
-    if request.user == user:
-        posts = Post.objects.filter(author=user).order_by('-created_at')
-    elif is_following:
-        posts = Post.objects.filter(author=user).order_by('-created_at')
-    else:
-        posts = Post.objects.filter(author=user, visibility='PUBLIC').order_by('-created_at')
-
-    for post in posts:
-        reaction_counts = post.react_set.values('type').annotate(count=Count('type'))
-        post.reaction_counts = {item['type']: item['count'] for item in reaction_counts}
-
-        post.user_reacted_type = None
-        user_reaction = post.react_set.filter(user=request.user).first()
-        if user_reaction:
-            post.user_reacted_type = user_reaction.type
+    if request.user.is_authenticated:
+        is_following = Follower.objects.filter(follower=request.user, following=user).exists()
 
     followers_count = Follower.objects.filter(following=user).count()
     following_count = Follower.objects.filter(follower=user).count()
 
+    if user.profile.is_banned:
+        posts = []
+    else:
+        posts = Post.objects.filter(author=user).order_by('-created_at')
+
     context = {
         'user': user,
+        'posts': posts,
         'is_following': is_following,
         'followers_count': followers_count,
         'following_count': following_count,
-        'posts': posts
     }
+
     return render(request, 'Accounts/profile.html', context)
 
 @login_required
 def profile_update(request):
-    current_profile_picture = request.user.profile.profile_picture
+    if request.user.profile.is_banned:
+        return render(request, 'Accounts/banned.html')
 
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
@@ -65,22 +59,6 @@ def profile_update(request):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-
-            if request.FILES.get('profile_picture'):
-                if current_profile_picture:
-                    caption_text = f"{request.user.username} has updated their profile picture"
-                else:
-                    caption_text = f"{request.user.username} has uploaded a profile"
-
-                Post.objects.create(
-                    author=request.user,
-                    image=request.user.profile.profile_picture,
-                    caption=caption_text
-                )
-            elif profile_form.cleaned_data.get('clear_profile_picture'):
-                request.user.profile.profile_picture = None
-                request.user.profile.save()
-
             return redirect('profile', username=request.user.username)
     else:
         user_form = UserUpdateForm(instance=request.user)
@@ -112,6 +90,10 @@ def custom_login(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
+                if user.profile.is_banned:
+                    return render(request, 'Accounts/login.html',
+                                  {'form': form, 'error_message': 'Your account has been suspended.'})
+
                 login(request, user)
                 return redirect('profile', username=user.username)
     else:

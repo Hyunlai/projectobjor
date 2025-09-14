@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from Posts.forms import PostForm, CommentForm
 from .models import Post, Comment, React
-from Accounts.models import Follower
+from Accounts.models import Follower, Profile
 from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
@@ -14,9 +14,10 @@ def post_list(request):
     following_users = Follower.objects.filter(follower=request.user).values_list('following', flat=True)
 
     posts = Post.objects.filter(
-        Q(visibility='PUBLIC') |
-        Q(author__in=following_users, visibility='FOLLOWERS') |
-        Q(author=request.user)
+        (Q(visibility='PUBLIC') |
+         Q(author__in=following_users, visibility='FOLLOWERS') |
+         Q(author=request.user)) &
+        Q(author__profile__is_banned=False)
     ).order_by('-created_at').prefetch_related('react_set')
 
     for post in posts:
@@ -32,6 +33,9 @@ def post_list(request):
 
 @login_required
 def create_post(request):
+    if request.user.profile.is_banned:
+        return render(request, 'Accounts/banned.html')
+
     if request.method == 'POST':
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
@@ -120,6 +124,7 @@ def add_comment(request, post_id):
             comment.save()
             return redirect('home')
     return redirect('home')
+
 
 @login_required
 def delete_comment(request, comment_id):
