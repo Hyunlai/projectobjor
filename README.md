@@ -17,7 +17,7 @@
   - [x] Add comments to posts
   - [x] Follow and unfollow users
 - [x] **Homepage & Feed**
-  - [ ] Homepage to display a feed of posts
+  - [x] Homepage to display a feed of posts
   - [x] Display posts from followed users
   - [x] Post reaction counters
   - [x] Post comment section
