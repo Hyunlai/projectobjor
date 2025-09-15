@@ -38,6 +38,15 @@ def profile(request, username):
     else:
         posts = Post.objects.filter(author=user).order_by('-created_at')
 
+    for post in posts:
+        reaction_counts = post.react_set.values('type').annotate(count=Count('type'))
+        post.reaction_counts = {item['type']: item['count'] for item in reaction_counts}
+
+        post.user_reacted_type = None
+        user_reaction = post.react_set.filter(user=request.user).first()
+        if user_reaction:
+            post.user_reacted_type = user_reaction.type
+
     context = {
         'user': user,
         'posts': posts,
