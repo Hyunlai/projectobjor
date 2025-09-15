@@ -13,7 +13,6 @@
         {% if user.profile.profile_picture %}
             <p>Current Profile Picture:</p>
             <img src="{{ user.profile.profile_picture.url }}" alt="Current Profile Picture" style="max-width: 200px;">
-            <p>{{ profile_form.clear_profile_picture }} {{ profile_form.clear_profile_picture.label_tag }}</p>
         {% endif %}
 
         <button type="submit">Update</button>

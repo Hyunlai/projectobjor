@@ -8,9 +8,6 @@ class UserUpdateForm(forms.ModelForm):
         fields = ['username', 'email']
 
 class ProfileUpdateForm(forms.ModelForm):
-    caption = forms.CharField(max_length=255, required=False, help_text="Add a caption for your new profile picture post.")
-    clear_profile_picture = forms.BooleanField(required=False, label="Remove profile picture")
-
     class Meta:
         model = Profile
-        fields = ['bio', 'profile_picture']
+        fields = ['profile_picture', 'bio']

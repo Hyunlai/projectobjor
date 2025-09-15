@@ -4,17 +4,36 @@
     <h2>Moderation Dashboard</h2>
     {% for post in posts %}
         <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
-            <h3>Post by <a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a></h3>
+            <h3>
+                Post by <a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a>
+                {% if post.author.admin.is_admin %}
+                    <span style="background-color: #4CAF50; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 5px;">
+                        ADMIN
+                    </span>
+                {% endif %}
+            </h3>
             <p><strong>Caption:</strong> {{ post.caption }}</p>
             {% if post.image %}
                 <img src="{{ post.image.url }}" style="max-width: 100%;">
             {% endif %}
-            <a href="{% url 'admin_delete_post' post.id %}">Delete Post</a>
 
-            {% if post.author.profile.is_banned %}
-                <a href="{% url 'unban_user' username=post.author.username %}">Unban User</a>
-            {% else %}
-                <a href="{% url 'ban_user' username=post.author.username %}">Ban User</a>
+            <form action="{% url 'admin_delete_post' post.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit">Delete Post</button>
+            </form>
+
+            {% if not post.author.admin.is_admin %}
+                {% if post.author.profile.is_banned %}
+                    <form action="{% url 'unban_user' username=post.author.username %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit">Unban User</button>
+                    </form>
+                {% else %}
+                    <form action="{% url 'ban_user' username=post.author.username %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit">Ban User</button>
+                    </form>
+                {% endif %}
             {% endif %}
         </div>
     {% endfor %}

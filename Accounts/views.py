@@ -5,9 +5,8 @@ from .forms import UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
 from Posts.models import Post, React
-from django.db.models import Count
+from django.db.models import Count, Q
 from .models import Profile, Follower
-from django.db.models import Q
 from Admin.models import Admin
 
 # Create your views here.
