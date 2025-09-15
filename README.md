@@ -46,14 +46,5 @@ These features were not part of the original proposal but have been implemented 
 
 ### Concurrent Bugs & Known Issues
 
-- **Homepage & Feed**
-  - The homepage feed is not correctly filtering posts based on their visibility.
-  - The "shared post" does not indicate it is a shared post.
-  - Posts from banned users are not being hidden.
-
-- **Post Reaction Counters**
-  - The reaction counters may display an incorrect count of zero due to an inefficient database query.
-
-- **Share Button**
-  - The homepage feed does not display the share button and prompt but it displays properly when viewed in the profile. 
+- **N/A**
 
