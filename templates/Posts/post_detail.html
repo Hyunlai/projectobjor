@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+        <h3>
+            Post by <a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a>
+            {% if request.user.is_authenticated and request.user.admin.is_admin and post.author.admin.is_admin %}
+                <span style="background-color: #4CAF50; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; margin-left: 5px;">
+                    ADMIN
+                </span>
+            {% endif %}
+        </h3>
+        <p><small>Posted on {{ post.created_at|date:"F j, Y, P" }}</small></p>
+
+        {% if post.image %}
+            <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
+        {% endif %}
+        <p>{{ post.caption }}</p>
+
+        <div style="margin-top: 10px;">
+            <span>{{ post.reaction_counts.like|default:0 }} Like(s)</span>
+            <span>{{ post.reaction_counts.love|default:0 }} Love(s)</span>
+            <span>{{ post.reaction_counts.haha|default:0 }} Haha(s)</span>
+            <span>{{ post.reaction_counts.wow|default:0 }} Wow(s)</span>
+            <span>{{ post.reaction_counts.cry|default:0 }} Cry(s)</span>
+            <span>{{ post.reaction_counts.angry|default:0 }} Angry(s)</span>
+            <span>{{ post.reaction_counts.dislike|default:0 }} Dislike(s)</span>
+        </div>
+
+        <div style="margin-top: 5px;">
+            <a href="{% url 'add_reaction' post.id 'like' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'like' %}lightblue{% endif %};">Like</a>
+            <a href="{% url 'add_reaction' post.id 'love' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'love' %}pink{% endif %};">Love</a>
+            <a href="{% url 'add_reaction' post.id 'haha' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'haha' %}yellow{% endif %};">Haha</a>
+            <a href="{% url 'add_reaction' post.id 'wow' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'wow' %}orange{% endif %};">Wow</a>
+            <a href="{% url 'add_reaction' post.id 'cry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'cry' %}gray{% endif %};">Cry</a>
+            <a href="{% url 'add_reaction' post.id 'angry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'angry' %}red{% endif %};">Angry</a>
+            <a href="{% url 'add_reaction' post.id 'dislike' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'dislike' %}black{% endif %};">Dislike</a>
+        </div>
+        
+        <a href="{% url 'share_post' post.id %}">Share</a>
+
+        <div style="margin-top: 15px;">
+            <h4>Comments</h4>
+            {% for comment in comments %}
+                <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px; margin-left: 10px;">
+                    <p><strong>{{ comment.author.username }}</strong>: {{ comment.text }}</p>
+                    {% if comment.replies %}
+                        <div style="margin-left: 20px;">
+                            <details>
+                                <summary>View Replies</summary>
+                                {% for reply in comment.replies.all %}
+                                    <div style="margin-top: 5px;">
+                                        <p style="display:inline;"><strong>{{ reply.author.username }}</strong>: {{ reply.text }}</p>
+                                    </div>
+                                {% endfor %}
+                            </details>
+                        </div>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p>No comments yet.</p>
+            {% endfor %}
+
+            <div style="margin-top: 15px;">
+                <form method="post" action="{% url 'add_comment' post_id=post.id %}">
+                    {% csrf_token %}
+                    <textarea name="text" placeholder="Add a comment..." required></textarea>
+                    <button type="submit">Comment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -24,10 +24,12 @@
                     <p>Shared from <a href="{% url 'profile' username=post.original_post.author.username %}">{{ post.original_post.author.username }}'s</a> post.</p>
                 {% endif %}
 
-                {% if post.image %}
-                    <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
-                {% endif %}
-                <p>{{ post.caption }}</p>
+                <a href="{% url 'post_detail' post_id=post.id %}">
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
+                    {% endif %}
+                    <p>{{ post.caption }}</p>
+                </a>
 
                 {% if not request.user.profile.is_banned %}
                     {% if request.user == post.author %}
