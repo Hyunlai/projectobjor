@@ -6,7 +6,7 @@ from PIL import Image
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_picture = models.ImageField(default='default.jpg', upload_to='profile_pics')
+    profile_picture = models.ImageField(default='default/default.jpg', upload_to='profile_pics')
     bio = models.TextField(blank=True)
     is_banned = models.BooleanField(default=False)
 
@@ -15,12 +15,6 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-
-        img = Image.open(self.profile_picture.path)
-        if img.height > 300 or img.width > 300:
-            output_size = (300, 300)
-            img.thumbnail(output_size)
-            img.save(self.profile_picture.path)
 
 class Follower(models.Model):
     follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
