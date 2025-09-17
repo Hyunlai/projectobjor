@@ -7,6 +7,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
+from django.http import JsonResponse
+import json
 
 # Create your views here.
 
@@ -174,9 +176,17 @@ def add_comment(request, post_id):
                 comment.parent_comment = parent_comment
 
             comment.save()
+
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'comment_id': comment.id,
+                    'author_username': request.user.username,
+                    'comment_text': comment.text
+                })
+
             return redirect('home')
     return redirect('home')
-
 
 @login_required
 def delete_comment(request, comment_id):

@@ -39,7 +39,6 @@
                             {% csrf_token %}
                             <button type="submit">Delete Post</button>
                         </form>
-                        <a href="{% url 'edit_post' post_id=post.id %}" style="margin-left: 10px;">Edit Post</a>
                     {% endif %}
 
                     <a href="{% url 'share_post' post.id %}">Share</a>
@@ -65,56 +64,29 @@
                     </div>
 
                     <div style="margin-top: 15px;">
-                        <details>
-                            <summary><h4>View Reactions</h4></summary>
-                            {% for reaction in post.react_set.all %}
-                                <p style="margin: 0;">{{ reaction.user.username }} reacted with "{{ reaction.type }}"</p>
-                            {% endfor %}
-                        </details>
-                    </div>
-
-                    <div style="margin-top: 20px;">
-                        <h4>Comments</h4>
-                        {% for comment in post.comments.all|dictsort:"created_at" %}
-                            {% if not comment.parent_comment %}
-                                <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px;">
-                                    <p style="display:inline;"><strong>{{ comment.author.username }}</strong>: {{ comment.text }}</p>
-                                    {% if request.user == comment.author %}
-                                        <form method="post" action="{% url 'delete_comment' comment_id=comment.id %}" style="display:inline; margin-left: 10px;">
-                                            {% csrf_token %}
-                                            <button type="submit">Delete</button>
-                                        </form>
-                                    {% endif %}
-                                    <a href="#" onclick="document.getElementById('reply-form-{{ comment.id }}').style.display='block';">Reply</a>
-
-                                    <div id="reply-form-{{ comment.id }}" style="display:none; margin-left: 20px;">
-                                        <form method="post" action="{% url 'add_comment' post_id=post.id %}">
-                                            {% csrf_token %}
-                                            <input type="hidden" name="parent_id" value="{{ comment.id }}">
-                                            <textarea name="text" placeholder="Add a reply..." required></textarea>
-                                            <button type="submit">Reply</button>
-                                        </form>
+                        <h4>Latest Comment</h4>
+                        <div id="latest-comment-{{ post.id }}">
+                            {% with latest_comment=post.comments.all|dictsort:"created_at"|last %}
+                                {% if latest_comment %}
+                                    <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px;">
+                                        <p style="display:inline;"><strong>{{ latest_comment.author.username }}</strong>: {{ latest_comment.text }}</p>
+                                        {% if request.user == latest_comment.author %}
+                                            <form method="post" action="{% url 'delete_comment' comment_id=latest_comment.id %}" style="display:inline; margin-left: 10px;">
+                                                {% csrf_token %}
+                                                <button type="submit">Delete</button>
+                                            </form>
+                                        {% endif %}
                                     </div>
-                                    {% for reply in comment.replies.all|dictsort:"created_at" %}
-                                        <div style="margin-left: 40px; border-left: 2px solid #eee; padding-left: 10px; margin-top: 5px;">
-                                            <p style="display:inline;"><strong>{{ reply.author.username }}</strong>: {{ reply.text }}</p>
-                                            {% if request.user == reply.author %}
-                                                <form method="post" action="{% url 'delete_comment' comment_id=reply.id %}" style="display:inline; margin-left: 10px;">
-                                                    {% csrf_token %}
-                                                    <button type="submit">Delete</button>
-                                                </form>
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            {% endif %}
-                        {% empty %}
-                            <p>No comments yet.</p>
-                        {% endfor %}
+                                {% else %}
+                                    <p>No comments yet.</p>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
 
                         <div style="margin-top: 15px;">
-                            <form method="post" action="{% url 'add_comment' post_id=post.id %}">
+                            <form method="post" action="{% url 'add_comment' post_id=post.id %}" class="comment-form">
                                 {% csrf_token %}
+                                <input type="hidden" name="post_id" value="{{ post.id }}">
                                 <textarea name="text" placeholder="Add a comment..." required></textarea>
                                 <button type="submit">Comment</button>
                             </form>
@@ -126,4 +98,53 @@
     {% else %}
         <p>No posts to display yet.</p>
     {% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        document.querySelectorAll('.comment-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const postId = this.querySelector('input[name="post_id"]').value;
+                const commentText = this.querySelector('textarea[name="text"]').value;
+                const csrfToken = this.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+                fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: `text=${encodeURIComponent(commentText)}&parent_id=&post_id=${postId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const commentsContainer = document.getElementById(`latest-comment-${postId}`);
+
+                        const noCommentsMsg = commentsContainer.querySelector('p');
+                        if (noCommentsMsg && noCommentsMsg.textContent.trim() === 'No comments yet.') {
+                            noCommentsMsg.remove();
+                        }
+
+                        const newCommentDiv = document.createElement('div');
+                        newCommentDiv.style.borderTop = '1px dashed #ccc';
+                        newCommentDiv.style.paddingTop = '10px';
+                        newCommentDiv.style.marginTop = '10px';
+                        newCommentDiv.innerHTML = `<p style="display:inline;"><strong>${data.author_username}</strong>: ${data.comment_text}</p>`;
+
+                        commentsContainer.appendChild(newCommentDiv);
+
+                        this.querySelector('textarea[name="text"]').value = '';
+                    } else {
+                        console.error('Error adding comment:', data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+    });
+</script>
+
 {% endblock %}

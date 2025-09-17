@@ -40,17 +40,54 @@
         <a href="{% url 'share_post' post.id %}">Share</a>
 
         <div style="margin-top: 15px;">
+            <details>
+                <summary><h4>View Reactions</h4></summary>
+                <div style="margin-bottom: 10px;">
+                    <button class="filter-btn" data-reaction-type="all">All</button>
+                    <button class="filter-btn" data-reaction-type="like">Like</button>
+                    <button class="filter-btn" data-reaction-type="love">Love</button>
+                    <button class="filter-btn" data-reaction-type="haha">Haha</button>
+                    <button class="filter-btn" data-reaction-type="wow">Wow</button>
+                    <button class="filter-btn" data-reaction-type="cry">Cry</button>
+                    <button class="filter-btn" data-reaction-type="angry">Angry</button>
+                    <button class="filter-btn" data-reaction-type="dislike">Dislike</button>
+                </div>
+                <div id="reactions-container">
+                    {% for reaction in post.react_set.all %}
+                        <p class="reaction-item" data-reaction-type="{{ reaction.type }}" style="margin: 0;">{{ reaction.user.username }} reacted with "{{ reaction.type }}"</p>
+                    {% endfor %}
+                </div>
+            </details>
+        </div>
+
+        <div style="margin-top: 15px;">
             <h4>Comments</h4>
             {% for comment in comments %}
                 <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px; margin-left: 10px;">
-                    <p><strong>{{ comment.author.username }}</strong>: {{ comment.text }}</p>
+                    <p>
+                        <strong>{{ comment.author.username }}</strong>: {{ comment.text }}
+                        {% if request.user == comment.author %}
+                            <form method="post" action="{% url 'delete_comment' comment_id=comment.id %}" style="display:inline; margin-left: 10px;">
+                                {% csrf_token %}
+                                <button type="submit">Delete</button>
+                            </form>
+                        {% endif %}
+                    </p>
                     {% if comment.replies %}
                         <div style="margin-left: 20px;">
                             <details>
                                 <summary>View Replies</summary>
                                 {% for reply in comment.replies.all %}
                                     <div style="margin-top: 5px;">
-                                        <p style="display:inline;"><strong>{{ reply.author.username }}</strong>: {{ reply.text }}</p>
+                                        <p style="display:inline;">
+                                            <strong>{{ reply.author.username }}</strong>: {{ reply.text }}
+                                            {% if request.user == reply.author %}
+                                                <form method="post" action="{% url 'delete_comment' comment_id=reply.id %}" style="display:inline; margin-left: 10px;">
+                                                    {% csrf_token %}
+                                                    <button type="submit">Delete</button>
+                                                </form>
+                                            {% endif %}
+                                        </p>
                                     </div>
                                 {% endfor %}
                             </details>
@@ -70,4 +107,25 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const reactionItems = document.querySelectorAll('.reaction-item');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const filterType = e.target.dataset.reactionType;
+
+                    reactionItems.forEach(item => {
+                        if (filterType === 'all' || item.dataset.reactionType === filterType) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 {% endblock %}

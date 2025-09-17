@@ -59,7 +59,6 @@
                     <a href="{% url 'add_reaction' post.id 'haha' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'haha' %}yellow{% endif %};">Haha</a>
                     <a href="{% url 'add_reaction' post.id 'wow' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'wow' %}orange{% endif %};">Wow</a>
                     <a href="{% url 'add_reaction' post.id 'cry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'cry' %}gray{% endif %};">Cry</a>
-                    <a href="{% url 'add_reaction' post.id 'angry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'angry' %}red{% endif %};">Angry</a>
                     <a href="{% url 'add_reaction' post.id 'dislike' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'dislike' %}black{% endif %};">Dislike</a>
                 </div>
 
