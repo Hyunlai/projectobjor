@@ -3,17 +3,10 @@
 {% block content %}
     <h1>{{ user.username }}'s Profile</h1>
     <hr>
-
-    {% if user.profile.is_banned %}
-        <div style="background-color: red; color: white; padding: 5px; border-radius: 5px; display: inline-block; margin-bottom: 10px;">
-            ACCOUNT BANNED
-        </div>
-    {% endif %}
-
     {% if user.profile.profile_picture %}
         <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}'s profile picture" style="width: 150px; height: 150px; border-radius: 50%;">
     {% else %}
-        <img src="#" alt="Default profile picture" style="width: 150px; height: 150px; border-radius: 50%;">
+        <img src="{{ user.profile.profile_picture.url }}" alt="Default profile picture" style="width: 150px; height: 150px; border-radius: 50%;">
     {% endif %}
 
     {% if user != request.user %}
@@ -37,59 +30,53 @@
     <h3>About Me</h3>
     <p>{{ user.profile.bio }}</p>
 
-    <hr>
-
     <div style="margin-top: 20px;">
         <h2>Posts</h2>
-        {% if user.profile.is_banned %}
-            <p style="color: red;">This user's posts are not visible because the account has been banned.</p>
-        {% else %}
-            {% for post in posts %}
-                <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
-                    {% if post.original_post %}
-                        <p>Shared from <a href="{% url 'profile' username=post.original_post.author.username %}">{{ post.original_post.author.username }}'s</a> post.</p>
-                    {% endif %}
+        {% for post in posts %}
+            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+                {% if post.original_post %}
+                    <p>Shared from <a href="{% url 'profile' username=post.original_post.author.username %}">{{ post.original_post.author.username }}'s</a> post.</p>
+                {% endif %}
 
-                    {% if post.image %}
-                        <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
-                    {% endif %}
-                    <p>{{ post.caption }}</p>
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
+                {% endif %}
+                <p>{{ post.caption }}</p>
 
-                    <div style="margin-top: 10px;">
-                        <span>{{ post.reaction_counts.like|default:0 }} Like(s)</span>
-                        <span>{{ post.reaction_counts.love|default:0 }} Love(s)</span>
-                        <span>{{ post.reaction_counts.haha|default:0 }} Haha(s)</span>
-                        <span>{{ post.reaction_counts.wow|default:0 }} Wow(s)</span>
-                        <span>{{ post.reaction_counts.cry|default:0 }} Cry(s)</span>
-                        <span>{{ post.reaction_counts.angry|default:0 }} Angry(s)</span>
-                        <span>{{ post.reaction_counts.dislike|default:0 }} Dislike(s)</span>
-                    </div>
-
-                    <div style="margin-top: 5px;">
-                        <a href="{% url 'add_reaction' post.id 'like' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'like' %}lightblue{% endif %};">Like</a>
-                        <a href="{% url 'add_reaction' post.id 'love' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'love' %}pink{% endif %};">Love</a>
-                        <a href="{% url 'add_reaction' post.id 'haha' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'haha' %}yellow{% endif %};">Haha</a>
-                        <a href="{% url 'add_reaction' post.id 'wow' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'wow' %}orange{% endif %};">Wow</a>
-                        <a href="{% url 'add_reaction' post.id 'cry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'cry' %}gray{% endif %};">Cry</a>
-                        <a href="{% url 'add_reaction' post.id 'angry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'angry' %}red{% endif %};">Angry</a>
-                        <a href="{% url 'add_reaction' post.id 'dislike' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'dislike' %}black{% endif %};">Dislike</a>
-                    </div>
-
-                    <a href="{% url 'share_post' post.id %}">Share</a>
-
-                    <div style="margin-top: 15px;">
-                        <details>
-                            <summary><h4>View Reactions</h4></summary>
-                            {% for reaction in post.react_set.all %}
-                                <p style="margin: 0;">{{ reaction.user.username }} reacted with "{{ reaction.type }}"</p>
-                            {% endfor %}
-                        </details>
-                    </div>
-                    <p><small>Posted on {{ post.created_at|date:"F j, Y, P" }}</small></p>
+                <div style="margin-top: 10px;">
+                    <span>{{ post.reaction_counts.like|default:0 }} Like(s)</span>
+                    <span>{{ post.reaction_counts.love|default:0 }} Love(s)</span>
+                    <span>{{ post.reaction_counts.haha|default:0 }} Haha(s)</span>
+                    <span>{{ post.reaction_counts.wow|default:0 }} Wow(s)</span>
+                    <span>{{ post.reaction_counts.cry|default:0 }} Cry(s)</span>
+                    <span>{{ post.reaction_counts.angry|default:0 }} Angry(s)</span>
+                    <span>{{ post.reaction_counts.dislike|default:0 }} Dislike(s)</span>
                 </div>
-            {% empty %}
-                <p>{{ user.username }} has not created any posts yet.</p>
-            {% endfor %}
-        {% endif %}
+
+                <div style="margin-top: 5px;">
+                    <a href="{% url 'add_reaction' post.id 'like' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'like' %}lightblue{% endif %};">Like</a>
+                    <a href="{% url 'add_reaction' post.id 'love' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'love' %}pink{% endif %};">Love</a>
+                    <a href="{% url 'add_reaction' post.id 'haha' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'haha' %}yellow{% endif %};">Haha</a>
+                    <a href="{% url 'add_reaction' post.id 'wow' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'wow' %}orange{% endif %};">Wow</a>
+                    <a href="{% url 'add_reaction' post.id 'cry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'cry' %}gray{% endif %};">Cry</a>
+                    <a href="{% url 'add_reaction' post.id 'angry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'angry' %}red{% endif %};">Angry</a>
+                    <a href="{% url 'add_reaction' post.id 'dislike' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'dislike' %}black{% endif %};">Dislike</a>
+                </div>
+
+                <a href="{% url 'share_post' post.id %}">Share</a>
+
+                <div style="margin-top: 15px;">
+                    <details>
+                        <summary><h4>View Reactions</h4></summary>
+                        {% for reaction in post.react_set.all %}
+                            <p style="margin: 0;">{{ reaction.user.username }} reacted with "{{ reaction.type }}"</p>
+                        {% endfor %}
+                    </details>
+                </div>
+                <p><small>Posted on {{ post.created_at|date:"F j, Y, P" }}</small></p>
+            </div>
+        {% empty %}
+            <p>{{ user.username }} has not created any posts yet.</p>
+        {% endfor %}
     </div>
 {% endblock %}
