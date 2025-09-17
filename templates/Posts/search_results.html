@@ -3,31 +3,51 @@
 {% block content %}
     <h1>Search Results for "{{ query }}"</h1>
 
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'search' %}?q={{ query }}&category=posts" style="text-decoration: none;">
+            <button style="padding: 10px; margin-right: 10px; background-color: {% if category == 'posts' or not category %}#007bff{% else %}#f8f9fa{% endif %}; color: {% if category == 'posts' or not category %}white{% else %}black{% endif %}; border: 1px solid #007bff; border-radius: 5px;">Posts</button>
+        </a>
+        <a href="{% url 'search' %}?q={{ query }}&category=users" style="text-decoration: none;">
+            <button style="padding: 10px; background-color: {% if category == 'users' %}#007bff{% else %}#f8f9fa{% endif %}; color: {% if category == 'users' %}white{% else %}black{% endif %}; border: 1px solid #007bff; border-radius: 5px;">Users</button>
+        </a>
+    </div>
+
     {% if posts or users %}
-        <h2>Posts</h2>
-        {% if posts %}
-            {% for post in posts %}
-                <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
-                    <h3><a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a></h3>
-                    <p>{{ post.caption }}</p>
-                    {% if post.image %}
-                        <img src="{{ post.image.url }}" style="max-width: 100%;">
-                    {% endif %}
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No posts found matching your search.</p>
+        {% if category == 'posts' or not category %}
+            <h2>Posts</h2>
+            {% if posts %}
+                {% for post in posts %}
+                    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+                        <h3><a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a></h3>
+                        <p>{{ post.caption }}</p>
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" style="max-width: 100%;">
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No posts found matching your search.</p>
+            {% endif %}
         {% endif %}
 
-        <h2>Users</h2>
-        {% if users %}
-            {% for user in users %}
-                <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
-                    <h3><a href="{% url 'profile' username=user.username %}">{{ user.username }}</a></h3>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No users found matching your search.</p>
+        {% if category == 'users' or not category %}
+            <h2>Users</h2>
+            {% if users %}
+                {% for user in users %}
+                    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+                        <a href="{% url 'profile' username=user.username %}">
+                            {% if user.profile.profile_picture %}
+                                <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}'s profile picture" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                            {% else %}
+                                <img src="{{ user.profile.profile_picture.url }}" alt="Default profile picture" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'profile' username=user.username %}">{{ user.username }}</a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No users found matching your search.</p>
+            {% endif %}
         {% endif %}
     {% else %}
         <p>No results found for your query.</p>

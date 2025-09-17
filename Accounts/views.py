@@ -22,29 +22,40 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'Accounts/register.html', {'form': form})
 
+
 def profile(request, username):
     user = get_object_or_404(User, username=username)
     is_following = False
 
     if request.user.is_authenticated:
         is_following = Follower.objects.filter(follower=request.user, following=user).exists()
+        following_users = Follower.objects.filter(follower=request.user).values_list('following', flat=True)
 
-    followers_count = Follower.objects.filter(following=user).count()
-    following_count = Follower.objects.filter(follower=user).count()
+    posts_query = Post.objects.filter(author=user)
 
     if user.profile.is_banned:
-        posts = []
+        posts = posts_query.filter(visibility='PUBLIC')
+    elif request.user.is_authenticated and request.user == user:
+        posts = posts_query
+    elif request.user.is_authenticated and is_following:
+        posts = posts_query.filter(Q(visibility='PUBLIC') | Q(visibility='FOLLOWERS'))
     else:
-        posts = Post.objects.filter(author=user).order_by('-created_at')
+        posts = posts_query.filter(visibility='PUBLIC')
+
+    posts = posts.order_by('-created_at').prefetch_related('react_set')
 
     for post in posts:
         reaction_counts = post.react_set.values('type').annotate(count=Count('type'))
         post.reaction_counts = {item['type']: item['count'] for item in reaction_counts}
 
         post.user_reacted_type = None
-        user_reaction = post.react_set.filter(user=request.user).first()
-        if user_reaction:
-            post.user_reacted_type = user_reaction.type
+        if request.user.is_authenticated:
+            user_reaction = post.react_set.filter(user=request.user).first()
+            if user_reaction:
+                post.user_reacted_type = user_reaction.type
+
+    followers_count = Follower.objects.filter(following=user).count()
+    following_count = Follower.objects.filter(follower=user).count()
 
     context = {
         'user': user,

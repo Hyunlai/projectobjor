@@ -12,24 +12,32 @@ from django.contrib.auth.models import User
 
 def search(request):
     query = request.GET.get('q')
+    category = request.GET.get('category')
     posts = []
     users = []
+    following_users = Follower.objects.filter(follower=request.user).values_list('following', flat=True)
 
     if query:
-        # Search for posts by caption
-        posts = Post.objects.filter(
-            Q(caption__icontains=query) | Q(author__username__icontains=query)
-        ).distinct().order_by('-created_at')
+        if category == 'posts' or not category:
+            posts = Post.objects.filter(
+                Q(caption__icontains=query) |
+                Q(author__username__icontains=query) |
+                Q(visibility='PUBLIC') |
+                Q(author__in=following_users, visibility='FOLLOWERS') |
+                Q(author=request.user) &
+                Q(author__profile__is_banned=False)
+            ).distinct().order_by('-created_at')
 
-        # Search for users by username
-        users = User.objects.filter(
-            Q(username__icontains=query)
-        ).distinct()
+        if category == 'users' or not category:
+            users = User.objects.filter(
+                Q(username__icontains=query)
+            ).distinct()
 
     context = {
         'query': query,
         'posts': posts,
-        'users': users
+        'users': users,
+        'category': category
     }
     return render(request, 'Posts/search_results.html', context)
 
