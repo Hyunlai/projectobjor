@@ -6,8 +6,32 @@ from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.core.files.storage import default_storage
+from django.contrib.auth.models import User
 
 # Create your views here.
+
+def search(request):
+    query = request.GET.get('q')
+    posts = []
+    users = []
+
+    if query:
+        # Search for posts by caption
+        posts = Post.objects.filter(
+            Q(caption__icontains=query) | Q(author__username__icontains=query)
+        ).distinct().order_by('-created_at')
+
+        # Search for users by username
+        users = User.objects.filter(
+            Q(username__icontains=query)
+        ).distinct()
+
+    context = {
+        'query': query,
+        'posts': posts,
+        'users': users
+    }
+    return render(request, 'Posts/search_results.html', context)
 
 @login_required
 def post_list(request):

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Search Results for "{{ query }}"</h1>
+
+    {% if posts or users %}
+        <h2>Posts</h2>
+        {% if posts %}
+            {% for post in posts %}
+                <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+                    <h3><a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a></h3>
+                    <p>{{ post.caption }}</p>
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}" style="max-width: 100%;">
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No posts found matching your search.</p>
+        {% endif %}
+
+        <h2>Users</h2>
+        {% if users %}
+            {% for user in users %}
+                <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+                    <h3><a href="{% url 'profile' username=user.username %}">{{ user.username }}</a></h3>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No users found matching your search.</p>
+        {% endif %}
+    {% else %}
+        <p>No results found for your query.</p>
+    {% endif %}
+{% endblock %}
