@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Conversation with
+  {% for user in conversation.participants.all %}
+    {% if user != request.user %}{{ user.username }} {% endif %}
+  {% endfor %}
+</h2>
+<div style="border:1px solid #ccc; padding:10px; margin-bottom:20px; max-height:400px; overflow-y:auto;">
+  {% for message in messages %}
+    <div style="margin-bottom:10px;">
+      <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+      <span style="font-size:0.8em; color:#888;">({{ message.timestamp|date:'SHORT_DATETIME_FORMAT' }})</span>
+    </div>
+  {% empty %}
+    <p>No messages yet.</p>
+  {% endfor %}
+</div>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Send</button>
+</form>
+<a href="{% url 'conversation_list' %}">Back to Conversations</a>
+{% endblock %}
+
