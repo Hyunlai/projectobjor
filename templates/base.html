@@ -10,6 +10,7 @@
             <span>Hello, {{ request.user.username }}!</span>
             <a href="{% url 'profile' username=request.user.username %}">Profile</a>
             <a href="{% url 'create_post' %}">Create Post</a>
+            <a href="{% url 'conversation_list' %}">Messages</a>
             <form action="{% url 'logout' %}" method="post" style="display:inline;">
                 {% csrf_token %}
                 <button type="submit" style="border: none; background: none; cursor: pointer; color: blue; text-decoration: underline; font-family: inherit; font-size: inherit;">Log Out</button>

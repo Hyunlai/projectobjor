@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'Admin',
     'Accounts',
     'Posts',
+    'Messages',
 ]
 
 MIDDLEWARE = [
