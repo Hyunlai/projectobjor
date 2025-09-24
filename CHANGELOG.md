@@ -31,3 +31,11 @@ This is a log of all the changes as of 9/17/2025 to the Chinguloop project.
 **Removed Features**
 
 * **Post Editing:** The ability to edit a post was removed, and the `edit_post` URL path was deleted.
+
+---
+9/24/2025 
+
+Version 1.3
+New Features
+
+- Video Uploads: Users can now upload videos to their posts. The system supports common video formats and automatically generates thumbnails for video posts.
