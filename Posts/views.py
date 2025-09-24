@@ -20,20 +20,21 @@ def search(request):
     following_users = Follower.objects.filter(follower=request.user).values_list('following', flat=True)
 
     if query:
-        if category == 'posts' or not category:
-            posts = Post.objects.filter(
-                Q(caption__icontains=query) |
-                Q(author__username__icontains=query) |
-                Q(visibility='PUBLIC') |
-                Q(author__in=following_users, visibility='FOLLOWERS') |
-                Q(author=request.user) &
-                Q(author__profile__is_banned=False)
-            ).distinct().order_by('-created_at')
-
         if category == 'users' or not category:
             users = User.objects.filter(
                 Q(username__icontains=query)
             ).distinct()
+
+        if category == 'posts' or not category:
+            posts = Post.objects.filter(
+                Q(caption__icontains=query) |
+                Q(author__username__icontains=query)
+            ).filter(
+                (Q(visibility='PUBLIC') |
+                 Q(author__in=following_users, visibility='FOLLOWERS') |
+                 Q(author=request.user)) &
+                Q(author__profile__is_banned=False)
+            ).distinct().order_by('-created_at')
 
     context = {
         'query': query,
