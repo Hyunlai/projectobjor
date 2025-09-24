@@ -28,7 +28,16 @@
 
                 <a href="{% url 'post_detail' post_id=post.id %}" style="text-decoration: none; color: inherit;">
                     {% if post.image %}
-                        <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
+                        <a href="{% url 'post_detail' post_id=post.id %}">
+                            <img src="{{ post.image.url }}" style="max-width: 100%; max-height: 400px; display: block; margin: 10px auto;">
+                        </a>
+                    {% elif post.video %}
+                        <a href="{% url 'post_detail' post_id=post.id %}">
+                            <video controls style="max-width: 100%; max-height: 400px; display: block; margin: 10px auto;">
+                                <source src="{{ post.video.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </a>
                     {% endif %}
                     <p>{{ post.caption }}</p>
                 </a>
