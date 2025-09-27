@@ -150,16 +150,68 @@ def delete_post(request, post_id):
 
 @login_required
 def add_reaction(request, post_id, reaction_type):
-    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        post = get_object_or_404(Post, id=post_id)
+        existing_reaction = React.objects.filter(user=request.user, post=post, type=reaction_type).first()
 
-    existing_reaction = React.objects.filter(user=request.user, post=post, type=reaction_type).first()
+        if existing_reaction:
+            existing_reaction.delete()
+            action = 'removed'
+        else:
+            React.objects.create(user=request.user, post=post, type=reaction_type)
+            action = 'added'
 
-    if existing_reaction:
-        existing_reaction.delete()
-    else:
-        React.objects.create(user=request.user, post=post, type=reaction_type)
+        updated_reactions = post.react_set.values('type').annotate(count=Count('type'))
 
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
+        reaction_counts = {
+            'like': 0, 'love': 0, 'haha': 0,
+            'wow': 0, 'cry': 0, 'angry': 0, 'dislike': 0
+        }
+
+        for reaction in updated_reactions:
+            reaction_counts[reaction['type']] = reaction['count']
+
+        return JsonResponse({
+            'success': True,
+            'action': action,
+            'reaction_counts': reaction_counts,
+        })
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
+
+@login_required
+def react_post(request, post_id, reaction_type):
+    post = get_object_or_404(Post, pk=post_id)
+
+    if request.method == 'POST':
+        existing_reaction = React.objects.filter(user=request.user, post=post).first()
+        action = None
+
+        if existing_reaction and existing_reaction.type == reaction_type:
+            existing_reaction.delete()
+            action = 'removed'
+        elif existing_reaction:
+            existing_reaction.type = reaction_type
+            existing_reaction.save()
+            action = 'updated'
+        else:
+            React.objects.create(user=request.user, post=post, type=reaction_type)
+            action = 'added'
+
+        reaction_counts = {}
+        updated_counts = post.react_set.values('type').annotate(count=Count('type'))
+        for reaction in updated_counts:
+            reaction_counts[reaction['type']] = reaction['count']
+
+        reactions_queryset = post.react_set.values('user__username', 'type').order_by('-id')
+        reactions_list = [{'user': r['user__username'], 'type': r['type']} for r in reactions_queryset]
+
+        return JsonResponse({
+            'success': True,
+            'action': action,
+            'reaction_counts': reaction_counts,
+            'reactions_list': reactions_list,
+        })
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 @login_required
 def add_comment(request, post_id):
@@ -178,20 +230,32 @@ def add_comment(request, post_id):
 
             comment.save()
 
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'comment_id': comment.id,
-                    'author_username': request.user.username,
-                    'comment_text': comment.text
-                })
+            return JsonResponse({
+                'success': True,
+                'comment_id': comment.id,
+                'author_username': request.user.username,
+                'comment_text': comment.text
+            })
 
-            return redirect('home')
-    return redirect('home')
+        return JsonResponse({'success': False, 'error': 'Invalid form data.'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 @login_required
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
-    if request.user == comment.author:
+
+    if comment.author != request.user:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': False, 'error': 'Not authorized.'}, status=403)
+        return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+    if request.method == 'POST':
         comment.delete()
-    return redirect('home')
+
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True})
+
+        return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
