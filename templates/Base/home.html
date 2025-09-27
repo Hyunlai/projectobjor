@@ -52,7 +52,7 @@
 
                     <a href="{% url 'share_post' post.id %}">Share</a>
 
-                    <div style="margin-top: 10px;">
+                    <div class="reaction-counts" data-post-id="{{ post.id }}" style="margin-top: 10px;">
                         <span>{{ post.reaction_counts.like|default:0 }} Like(s)</span>
                         <span>{{ post.reaction_counts.love|default:0 }} Love(s)</span>
                         <span>{{ post.reaction_counts.haha|default:0 }} Haha(s)</span>
@@ -63,13 +63,13 @@
                     </div>
 
                     <div style="margin-top: 5px;">
-                        <a href="{% url 'add_reaction' post.id 'like' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'like' %}lightblue{% endif %};">Like</a>
-                        <a href="{% url 'add_reaction' post.id 'love' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'love' %}pink{% endif %};">Love</a>
-                        <a href="{% url 'add_reaction' post.id 'haha' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'haha' %}yellow{% endif %};">Haha</a>
-                        <a href="{% url 'add_reaction' post.id 'wow' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'wow' %}orange{% endif %};">Wow</a>
-                        <a href="{% url 'add_reaction' post.id 'cry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'cry' %}gray{% endif %};">Cry</a>
-                        <a href="{% url 'add_reaction' post.id 'angry' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'angry' %}red{% endif %};">Angry</a>
-                        <a href="{% url 'add_reaction' post.id 'dislike' %}" class="btn btn-primary" style="background-color: {% if post.user_reacted_type == 'dislike' %}black{% endif %};">Dislike</a>
+                        <a data-post-id="{{ post.id }}" data-reaction-type="like" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'like' %}lightblue{% endif %};">Like</a>
+                        <a data-post-id="{{ post.id }}" data-reaction-type="love" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'love' %}pink{% endif %};">Love</a>
+                        <a data-post-id="{{ post.id }}" data-reaction-type="haha" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'haha' %}yellow{% endif %};">Haha</a>
+                        <a data-post-id="{{ post.id }}" data-reaction-type="wow" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'wow' %}orange{% endif %};">Wow</a>
+                        <a data-post-id="{{ post.id }}" data-reaction-type="cry" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'cry' %}gray{% endif %};">Cry</a>
+                        <a data-post-id="{{ post.id }}" data-reaction-type="angry" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'angry' %}red{% endif %};">Angry</a>
+                        <a data-post-id="{{ post.id }}" data-reaction-type="dislike" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'dislike' %}black{% endif %};">Dislike</a>
                     </div>
 
                     <div style="margin-top: 15px;">
@@ -93,7 +93,7 @@
                         </div>
 
                         <div style="margin-top: 15px;">
-                            <form method="post" action="{% url 'add_comment' post_id=post.id %}" class="comment-form">
+                            <form method="post" action="{% url 'add_comment' post_id=post.id %}" class="add-comment-form">
                                 {% csrf_token %}
                                 <input type="hidden" name="post_id" value="{{ post.id }}">
                                 <textarea name="text" placeholder="Add a comment..." required></textarea>
@@ -109,42 +109,82 @@
     {% endif %}
 
 <script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        document.querySelectorAll('.comment-form').forEach(form => {
+    document.addEventListener('DOMContentLoaded', () => {
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+        document.querySelectorAll('.react-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const postId = button.dataset.postId;
+                const reactionType = button.dataset.reactionType;
+                const url = `/posts/react/${postId}/${reactionType}/`;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.querySelectorAll('.react-btn[data-post-id="' + postId + '"]').forEach(btn => {
+                            btn.style.backgroundColor = '';
+                        });
+                        if (data.action === 'added') {
+                            button.style.backgroundColor = 'lightblue';
+                        }
+                        const reactionCountsDiv = document.querySelector('.reaction-counts[data-post-id="' + postId + '"]');
+                        if (reactionCountsDiv) {
+                            reactionCountsDiv.innerHTML = `
+                                <span>${data.reaction_counts.like || 0} Like(s)</span>
+                                <span>${data.reaction_counts.love || 0} Love(s)</span>
+                                <span>${data.reaction_counts.haha || 0} Haha(s)</span>
+                                <span>${data.reaction_counts.wow || 0} Wow(s)</span>
+                                <span>${data.reaction_counts.cry || 0} Cry(s)</span>
+                                <span>${data.reaction_counts.angry || 0} Angry(s)</span>
+                                <span>${data.reaction_counts.dislike || 0} Dislike(s)</span>
+                            `;
+                        }
+                    } else {
+                        console.error('Failed to submit reaction:', data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+
+        document.querySelectorAll('.add-comment-form').forEach(form => {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-
-                const postId = this.querySelector('input[name="post_id"]').value;
+                const postId = this.action.split('/').slice(-2)[0];
                 const commentText = this.querySelector('textarea[name="text"]').value;
-                const csrfToken = this.querySelector('input[name="csrfmiddlewaretoken"]').value;
+                const url = this.action;
+                const body = `text=${encodeURIComponent(commentText)}&parent_id=&post_id=${postId}&csrfmiddlewaretoken=${csrfToken}`;
 
-                fetch(this.action, {
+                fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRFToken': csrfToken
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: `text=${encodeURIComponent(commentText)}&parent_id=&post_id=${postId}`
+                    body: body
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         const commentsContainer = document.getElementById(`latest-comment-${postId}`);
-
                         const noCommentsMsg = commentsContainer.querySelector('p');
                         if (noCommentsMsg && noCommentsMsg.textContent.trim() === 'No comments yet.') {
                             noCommentsMsg.remove();
                         }
-
                         const newCommentDiv = document.createElement('div');
                         newCommentDiv.style.borderTop = '1px dashed #ccc';
                         newCommentDiv.style.paddingTop = '10px';
                         newCommentDiv.style.marginTop = '10px';
                         newCommentDiv.innerHTML = `<p style="display:inline;"><strong>${data.author_username}</strong>: ${data.comment_text}</p>`;
-
                         commentsContainer.appendChild(newCommentDiv);
-
                         this.querySelector('textarea[name="text"]').value = '';
                     } else {
                         console.error('Error adding comment:', data.error);
