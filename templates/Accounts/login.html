@@ -1,32 +1,52 @@
-{% extends 'base.html' %}
+{% extends 'base_public.html' %}
+{% load static %}
 
 {% block content %}
-    <h1>Log In</h1>
-    <form method="post">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
 
+<div class="auth-container">
+    <h1 class="auth-title">🔑 Log In</h1>
+
+    <form method="post" class="auth-form">
         {% csrf_token %}
-        <label for="id_username">Username:</label>
-        <input type="text" name="username" id="id_username" required>
-        <br>
-        <label for="id_password">Password:</label>
-        <input type="password" name="password" id="id_password" required>
-        <button type="button" onclick="togglePasswordVisibility('id_password')">Show/Hide</button>
-        <br>
-        <button type="submit">Log In</button>
-    </form>
-    <p>Don't have an account? <a href="{% url 'register' %}">Register Here</a></p>
 
-    <script>
-        function togglePasswordVisibility(fieldId) {
-            var passwordField = document.getElementById(fieldId);
-            if (passwordField.type === "password")
-            {
-                passwordField.type = "text";
-            }
-            else
-            {
-                passwordField.type = "password";
-            }
+        <div class="form-group">
+            <label for="id_username">👤 Username</label>
+            <input type="text" name="username" id="id_username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_password">🔒 Password</label>
+            <div class="password-wrapper">
+            <input type="password" name="password" id="id_password">
+            <button type="button" class="toggle-password" onclick="togglePasswordVisibility('id_password')" aria-label="Show/hide password">
+                👁
+            </button>
+        </div>
+
+        </div>
+
+        <button type="submit" class="auth-btn">✨ Log In</button>
+            {% if form.errors %}
+            <div class="auth-error">
+                ⚠️ Incorrect username or password. Please try again.
+            </div>
+            {% endif %}
+    </form>
+
+    <p class="auth-footer">
+        Don’t have an account? <a href="{% url 'register' %}">💖 Register Here</a>
+    </p>
+</div>
+
+<script>
+    function togglePasswordVisibility(fieldId) {
+        var passwordField = document.getElementById(fieldId);
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+        } else {
+            passwordField.type = "password";
         }
-    </script>
+    }
+</script>
 {% endblock %}

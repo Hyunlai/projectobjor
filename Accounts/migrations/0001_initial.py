@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('profile_picture', models.ImageField(default='default/default.jpg', upload_to='profile_pics')),
+                ('profile_banner', models.ImageField(default='default/banner.jpg', upload_to='profile_banners')),
                 ('bio', models.TextField(blank=True)),
                 ('is_banned', models.BooleanField(default=False)),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),

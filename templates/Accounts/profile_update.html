@@ -1,20 +1,102 @@
 {% extends 'base.html' %}
+{% load static %}
+{{ profile_form.profile_picture }}
+{{ profile_form.profile_banner }}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_update.css' %}">
+{% endblock %}
 
 {% block content %}
-    <h2>Update Profile</h2>
-    <form method="post" enctype="multipart/form-data">
+<div class="update-container">
+    <h1 class="update-title">Edit Profile</h1>
+
+    <form method="post" enctype="multipart/form-data" class="update-form">
         {% csrf_token %}
-        <p>Username: {{ user_form.username }}</p>
-        <p>Email: {{ user_form.email }}</p>
 
-        <p>Bio: {{ profile_form.bio }}</p>
-        <p>Profile Picture: {{ profile_form.profile_picture }}</p>
+        <!-- ===== ACCOUNT SECTION ===== -->
+        <div class="update-section">
+            <h2>Account Information</h2>
 
-        {% if user.profile.profile_picture %}
-            <p>Current Profile Picture:</p>
-            <img src="{{ user.profile.profile_picture.url }}" alt="Current Profile Picture" style="max-width: 200px;">
-        {% endif %}
+            <div class="form-group">
+                {{ user_form.username.label_tag }}
+                {{ user_form.username }}
+                {% if user_form.username.errors %}
+                    <div class="field-errors">{{ user_form.username.errors }}</div>
+                {% endif %}
+            </div>
 
-        <button type="submit">Update</button>
+            <div class="form-group">
+                {{ user_form.email.label_tag }}
+                {{ user_form.email }}
+                {% if user_form.email.errors %}
+                    <div class="field-errors">{{ user_form.email.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ===== BIO & PROFILE PICTURE ===== -->
+        <div class="update-section">
+            <h2>Profile Details</h2>
+
+            <div class="form-group">
+                {{ profile_form.bio.label_tag }}
+                {{ profile_form.bio }}
+                {% if profile_form.bio.errors %}
+                    <div class="field-errors">{{ profile_form.bio.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ profile_form.profile_picture.label_tag }}
+                {{ profile_form.profile_picture }}
+                {% if profile_form.profile_picture.errors %}
+                    <div class="field-errors">{{ profile_form.profile_picture.errors }}</div>
+                {% endif %}
+            </div>
+
+            {% if user.profile.profile_picture %}
+            <div class="current-pfp">
+                <p>Current Profile Picture:</p>
+                <img src="{{ user.profile.profile_picture.url }}" alt="Current Profile Picture">
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- ===== CUSTOMIZATION SECTION ===== -->
+        <div class="update-section">
+            <h2>Profile Customization</h2>
+
+            <!-- Banner Upload -->
+            <div class="form-group">
+                <label for="profile_banner">Profile Banner</label>
+                <input type="file" id="profile_banner" name="profile_banner" accept="image/*">
+
+                {% if user.profile.profile_banner %}
+                <div class="current-banner">
+                    <p>Current Banner:</p>
+                    <img src="{{ user.profile.profile_banner.url }}" alt="Profile Banner Preview">
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Theme Color -->
+            <div class="form-group color-picker-wrapper">
+                <label for="color_accent">Theme Color</label>
+                <input type="color" id="color_accent" name="color_accent" class="color-picker" value="{{ user.profile.color_accent|default:'#ff4da6' }}">
+            </div>
+
+            <!-- Profile Song (coming soon) -->
+            <div class="form-group disabled">
+                <label for="profile_song">Profile Song (Coming Soon ✨)</label>
+                <input type="file" id="profile_song" accept="audio/*" disabled>
+            </div>
+        </div>
+
+        <!-- ===== BUTTONS ===== -->
+        <div class="form-actions">
+            <button type="submit" class="btn-save">💾 Save Changes</button>
+            <a href="{% url 'profile' user.username %}" class="btn-cancel">Cancel</a>
+        </div>
     </form>
+</div>
 {% endblock %}

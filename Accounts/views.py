@@ -8,8 +8,20 @@ from Posts.models import Post, React
 from django.db.models import Count, Q
 from .models import Profile, Follower
 from Admin.models import Admin
-
+from django.contrib.auth.models import User
 # Create your views here.
+
+def lighten_color(hex_color, factor=0.2):
+    hex_color = hex_color.lstrip('#')
+    rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    lightened = tuple(min(int(c + (255 - c) * factor), 255) for c in rgb)
+    return '#' + ''.join(f'{c:02x}' for c in lightened)
+
+def darken_color(hex_color, factor=0.2):
+    hex_color = hex_color.lstrip('#')
+    rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+    darkened = tuple(max(int(c * (1 - factor)), 0) for c in rgb)
+    return '#' + ''.join(f'{c:02x}' for c in darkened)
 
 def register(request):
     if request.method == 'POST':
@@ -22,10 +34,18 @@ def register(request):
         form = UserCreationForm()
     return render(request, 'Accounts/register.html', {'form': form})
 
-
+@login_required
 def profile(request, username):
     user = get_object_or_404(User, username=username)
     is_following = False
+    profile = user.profile
+
+    if request.method == 'POST' and request.user == user:
+        profile.color_accent = request.POST.get('color_accent', profile.color_accent)
+        profile.color_accent_light = request.POST.get('color_accent_light', profile.color_accent_light)
+        profile.color_accent_dark = request.POST.get('color_accent_dark', profile.color_accent_dark)
+        profile.save()
+        return redirect('profile', username=username)
 
     if request.user.is_authenticated:
         is_following = Follower.objects.filter(follower=request.user, following=user).exists()
@@ -59,6 +79,7 @@ def profile(request, username):
 
     context = {
         'user': user,
+        'profile': profile,
         'posts': posts,
         'is_following': is_following,
         'followers_count': followers_count,
@@ -72,16 +93,25 @@ def profile_update(request):
     if request.user.profile.is_banned:
         return render(request, 'Accounts/banned.html')
 
+    profile = request.user.profile
+
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
+            accent = profile.color_accent
+            profile.color_accent_light = lighten_color(accent, 0.4)
+            profile.color_accent_dark = darken_color(accent, 0.3)
+            profile.save()
+
             return redirect('profile', username=request.user.username)
+
     else:
         user_form = UserUpdateForm(instance=request.user)
-        profile_form = ProfileUpdateForm(instance=request.user.profile)
+        profile_form = ProfileUpdateForm(instance=profile)
 
     context = {
         'user_form': user_form,

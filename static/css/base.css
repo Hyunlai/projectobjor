@@ -1,0 +1,221 @@
+/* VARIABLES — USER EDITABLE, GROUPED */
+:root {
+    /* PRIMARY ACCENT — buttons, links, borders */
+    --color-accent: #ff4da6;
+
+    /* SECONDARY ACCENT — lighter variant, gradients, sidebars, footer */
+    --color-accent-light: #ffb3d9;
+
+    /* TERTIARY ACCENT — darker variant, headers, shadows, text-shadow */
+    --color-accent-dark: #ff80bf;
+
+    /* BACKGROUNDS */
+    --bg-body: url("../images/friendster-bg.jpg") repeat fixed;
+    --bg-main: rgba(255, 255, 255, 0.8);
+    --bg-sidebar: rgba(255, 179, 217, 0.6);
+
+    /* TEXT COLORS */
+    --text-primary: #333;
+    --text-header: white;
+}
+
+/* RESET + GENERAL */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
+    color: var(--text-primary);
+    background: var(--bg-body);
+    background-size: cover;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER */
+header {
+    background: linear-gradient(90deg, var(--color-accent-dark), var(--color-accent-light));
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    color: var(--text-header);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-left h1 {
+    font-size: 1.8rem;
+    color: var(--text-header);
+    text-shadow: 2px 2px var(--color-accent);
+}
+
+.logo {
+    height: 60px;
+    width: auto;
+}
+
+.header-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.search-bar {
+    width: 60%;
+    max-width: 400px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 2px solid var(--color-accent);
+    outline: none;
+    font-size: 0.9rem;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logout-form button {
+    background: white;
+    color: var(--color-accent);
+    border: 2px solid var(--color-accent);
+    border-radius: 20px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.logout-form button:hover {
+    background: var(--color-accent);
+    color: var(--text-header);
+}
+
+/* LAYOUT CONTAINER */
+.container {
+    display: flex;
+    flex: 1;
+    padding: 15px;
+    min-height: calc(100vh - 140px);
+}
+
+/* SIDEBAR LEFT */
+.sidebar-left {
+    flex: 0 0 180px;
+    background: var(--color-accent);
+    border-radius: 15px;
+    padding: 15px;
+    margin-right: 15px;
+    height: fit-content;
+}
+
+.sidebar-left nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sidebar-left a {
+    text-decoration: none;
+    color: var(--color-accent);
+    background: white;
+    border-radius: 20px;
+    border: 2px solid var(--color-accent);
+    padding: 8px 12px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.sidebar-left a:hover {
+    background: var(--color-accent);
+    color: var(--text-header);
+}
+
+/* MAIN FEED */
+main {
+    flex: 1;
+    background: var(--bg-main);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    overflow-y: auto;
+}
+
+/* SIDEBAR RIGHT */
+.sidebar-right {
+    flex: 0 0 220px;
+    margin-left: 15px;
+    background: var(--color-accent);
+    border-radius: 15px;
+    padding: 15px;
+    height: fit-content;
+}
+
+.widget {
+    background: white;
+    border-radius: 15px;
+    border: 2px solid var(--color-accent);
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.widget h3 {
+    color: var(--color-accent);
+    margin-bottom: 8px;
+}
+
+/* 🌸 FOOTER */
+footer {
+    background: var(--color-accent-light);
+    text-align: center;
+    padding: 10px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+/* 🌸 PEOPLE YOU MAY KNOW */
+.people-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.people-list li a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: white;
+    border: 2px solid var(--color-accent);
+    text-decoration: none;
+    color: var(--color-accent);
+    transition: all 0.2s ease;
+}
+
+.people-list li a:hover {
+    background: var(--color-accent);
+    color: var(--text-header);
+}
+
+.pfp {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--color-accent);
+}
+

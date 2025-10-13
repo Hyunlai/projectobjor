@@ -10,8 +10,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 import json
 
-# Create your views here.
-
+@login_required
 def search(request):
     query = request.GET.get('q')
     category = request.GET.get('category')

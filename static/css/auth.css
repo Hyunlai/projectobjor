@@ -1,0 +1,131 @@
+.auth-container {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.auth-title {
+    color: #ff4da6;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.auth-form .form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.auth-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #660033;
+}
+
+.auth-form input,
+input[type="text"],
+input[type="password"],
+
+.password-wrapper input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 14px;
+    border: 2px solid #ffb3d9;
+    outline: none;
+    box-sizing: border-box;
+    transition: 0.2s ease;
+}
+
+.password-wrapper input {
+    flex: 1;
+}
+
+.toggle-password {
+    margin-left: 5px;
+    padding: 6px 10px;
+    border: none;
+    background: #ffb3d9;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 10px;
+    background: #ff4da6;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.auth-btn:hover {
+    background: #e60073;
+}
+
+.auth-footer {
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+input:focus {
+    border-color: #ff4da6;
+    box-shadow: 0 0 6px #ff99cc;
+}
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding: 12px 40px 12px 12px;
+    border-radius: 14px;
+    border: 2px solid #ffb3d9;
+    outline: none;
+    box-sizing: border-box;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.password-wrapper input:focus {
+    border-color: #ff4da6;
+    box-shadow: 0 0 6px #ff99cc;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1em;
+    color: #888888;
+}
+
+.auth-error {
+    background-color: #ffe6e6;
+    color: #cc0000;
+    padding: 10px;
+    border: 1px solid #cc0000;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  fill: currentColor;
+  display: inline-block;
+}

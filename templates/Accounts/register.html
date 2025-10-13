@@ -1,23 +1,68 @@
-{% extends 'base.html' %}
+{% extends 'base_public.html' %}
+{% load static %}
 
 {% block content %}
-    <h1>Register</h1>
-    <form method="post">
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+
+<div class="auth-container">
+    <h1 class="auth-title">💖 Register</h1>
+
+    <form method="post" class="auth-form">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="button" onclick="togglePasswordVisibility('id_password1')">Show/Hide Password</button>
-        <button type="button" onclick="togglePasswordVisibility('id_password2')">Show/Hide Confirmation</button>
-        <button type="submit">Register</button>
+
+        <div class="form-group">
+            <label for="id_username">👤 Username</label>
+            <input type="text" name="username" id="id_username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_email">📧 Email</label>
+            <input type="email" name="email" id="id_email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="id_password1">🔒 Password</label>
+            <div class="password-wrapper">
+                <input type="password" name="password1" id="id_password1" required>
+                <button type="button" class="toggle-password" onclick="togglePasswordVisibility('id_password1')">👁</button>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_password2">🔒 Confirm Password</label>
+            <div class="password-wrapper">
+                <input type="password" name="password2" id="id_password2" required>
+                <button type="button" class="toggle-password" onclick="togglePasswordVisibility('id_password2')">👁</button>
+            </div>
+        </div>
+
+        <button type="submit" class="auth-btn">✨ Register</button>
+        {% if form.errors %}
+            <div class="auth-error">
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>⚠️ {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <li>⚠️ {{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
     </form>
 
-    <script>
-        function togglePasswordVisibility(fieldId) {
-            var passwordField = document.getElementById(fieldId);
-            if (passwordField.type === "password") {
-                passwordField.type = "text";
-            } else {
-                passwordField.type = "password";
-            }
-        }
-    </script>
+    <p class="auth-footer">
+        Already have an account? <a href="{% url 'login' %}">🔑 Log In Here</a>
+    </p>
+</div>
+
+<script>
+function togglePasswordVisibility(fieldId) {
+    const field = document.getElementById(fieldId);
+    field.type = field.type === "password" ? "text" : "password";
+}
+</script>
 {% endblock %}

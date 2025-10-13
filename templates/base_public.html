@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ChinguLoop</title>
+    <link rel="stylesheet" href="{% static 'css/base_public.css' %}">
+</head>
+<body>
+    <header>
+    <img src="{% static 'images/Logo.png' %}" alt="ChinguLoop Logo" class="logo">
+    </header>
+    <nav>
+        <span style="align-self:center; color:#660033;">
+        </span>
+        {% if request.user.is_authenticated %}
+            <a href="{% url 'profile' username=request.user.username %}">👤 Profile</a>
+            <a href="{% url 'create_post' %}">➕ Post</a>
+            <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit">🚪 Log Out</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">🔑 Log In</a>
+            <a href="{% url 'register' %}">📝 Register</a>
+        {% endif %}
+    </nav>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>💖 Welcome to ChinguLoop — Your friendly throwback social hub 💖</p>
+    </footer>
+</body>
+</html>

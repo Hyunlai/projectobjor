@@ -1,0 +1,103 @@
+/* Banned account warning */
+.banned-message {
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+/* Post container */
+.post {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 25px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+}
+
+/* Author info (profile pic + name) */
+.post .author {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.post .author img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid #ffb3d9;
+}
+
+.post .author a {
+    font-weight: bold;
+    color: #ff4da6;
+    text-decoration: none;
+}
+
+.post .author a:hover {
+    text-decoration: underline;
+}
+
+/* Post image */
+.post img.post-image {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+/* Reactions area */
+.reactions {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.reaction-buttons {
+    margin-top: 5px;
+}
+
+.reaction-buttons a {
+    display: inline-block;
+    margin-right: 8px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.reaction-buttons a:hover {
+    opacity: 0.8;
+}
+
+/* Comments section */
+.comments {
+    margin-top: 20px;
+}
+
+.comment {
+    border-top: 1px dashed #ccc;
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+.comment strong {
+    color: #333;
+}
+
+.reply {
+    margin-left: 40px;
+    border-left: 2px solid #eee;
+    padding-left: 10px;
+    margin-top: 5px;
+    font-size: 0.9rem;
+}

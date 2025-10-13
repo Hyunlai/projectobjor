@@ -1,36 +1,99 @@
 <!DOCTYPE html>
-<html>
+{% load static %}
+<html lang="en">
 <head>
-    <title>Chinguloop</title>
+    <style>
+        :root {
+            --color-accent: {{ profile.color_accent }};
+            --color-accent-light: {{ profile.color_accent_light }};
+            --color-accent-dark: {{ profile.color_accent_dark }};
+                }
+        </style>
+    <meta charset="UTF-8">
+    <title>ChinguLoop</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% block extra_css %}{% endblock %}
+    {% if request.user.is_authenticated %}
+<style>
+    :root {
+      --color-accent: {{ request.user.profile.color_accent }};
+      --color-accent-light: {{ request.user.profile.color_accent_light }};
+      --color-accent-dark: {{ request.user.profile.color_accent_dark }};
+    }
+</style>
+{% endif %}
 </head>
-<body>
-    <nav>
-        <a href="{% url 'home' %}">Home</a>
-        {% if request.user.is_authenticated %}
-            <span>Hello, {{ request.user.username }}!</span>
-            <a href="{% url 'profile' username=request.user.username %}">Profile</a>
-            <a href="{% url 'create_post' %}">Create Post</a>
-            <a href="{% url 'conversation_list' %}">Messages</a>
-            <form action="{% url 'logout' %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" style="border: none; background: none; cursor: pointer; color: blue; text-decoration: underline; font-family: inherit; font-size: inherit;">Log Out</button>
-            </form>
-            {% if request.user.is_authenticated and request.user.admin.is_admin %}
-                <a href="{% url 'admin_dashboard' %}">
-                    <button>Admin Dashboard</button>
-                </a>
+<body class="private-bg">
+    <header>
+        <div class="header-left">
+            <img src="{% static 'images/Logo.png' %}" alt="ChinguLoop Logo" class="logo">
+            <h1>ChinguLoop</h1>
+        </div>
+        <div class="header-center">
+            <input type="text" placeholder="🔍 Search ChinguLoop..." class="search-bar">
+        </div>
+        <div class="header-right">
+            {% if request.user.is_authenticated %}
+                <span>Hello, {{ request.user.username }} 💕</span>
+                <form action="{% url 'logout' %}" method="post" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit">🚪 Log Out</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}">🔑 Log In</a>
+                <a href="{% url 'register' %}">📝 Register</a>
             {% endif %}
-            <form class="d-flex" action="{% url 'search' %}" method="get">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="q">
-                <button class="btn btn-outline-success" type="submit">Search</button>
-            </form>
-        {% else %}
-            <a href="{% url 'login' %}">Log In</a>
-            <a href="{% url 'register' %}">Register</a>
+        </div>
+    </header>
+
+    <div class="container">
+        {% if request.user.is_authenticated %}
+            <aside class="sidebar-left">
+                <nav>
+                    <a href="{% url 'home' %}">🏠    Home</a>
+                    <a href="{% url 'profile' username=request.user.username %}">👤  My Profile</a>
+                    <a href="{% url 'create_post' %}">➕ Create Post</a>
+                    <a href="{% url 'conversation_list' %}">💬 Messages </a>
+                </nav>
+            </aside>
         {% endif %}
-    </nav>
-    <hr>
-    {% block content %}
-    {% endblock %}
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+
+        {% if request.user.is_authenticated %}
+            <aside class="sidebar-right">
+                {% if people_you_may_know %}
+                    <div class="widget">
+                        <h3>👥 People You May Know</h3>
+                        <ul class="people-list">
+                            {% for person in people_you_may_know %}
+                                <li>
+                                    <a href="{% url 'profile' username=person.username %}">
+                                        {% if person.profile.profile_picture %}
+                                            <img src="{{ person.profile.profile_picture.url }}" alt="{{ person.username }}" class="pfp">
+                                        {% else %}
+                                            <img src="{% static 'images/default_pfp.png' %}" alt="default pfp" class="pfp">
+                                        {% endif %}
+                                        {{ person.username }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <div class="widget">
+                    <h3>💬 Latest Updates</h3>
+                    <p>Stay tuned for new features!</p>
+                </div>
+            </aside>
+        {% endif %}
+    </div>
+
+    <footer>
+        <p>💖 Welcome to ChinguLoop 💖</p>
+    </footer>
 </body>
 </html>
