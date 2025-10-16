@@ -3,6 +3,12 @@ from Posts.models import Post
 from django.contrib.auth.models import User
 from .models import Admin
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import user_passes_test
+
+@user_passes_test(lambda u: u.is_staff)
+def redirect_admin_root(request):
+    return redirect('/admin/dashboard/')
 
 def admin_dashboard(request):
     try:

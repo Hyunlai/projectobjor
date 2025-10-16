@@ -1,0 +1,69 @@
+/* Container for all posts */
+.posts-container {
+    max-width: 800px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
+}
+
+/* Individual post card */
+.post-card {
+    background-color: var(--color-accent-light);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.post-card:hover {
+    transform: scale(1.01);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+}
+
+/* Shared post label */
+.post-card .shared-label {
+    font-size: 14px;
+    color: var(--color-accent-dark);
+    margin-bottom: 6px;
+}
+
+/* Author and date */
+.post-card .post-meta {
+    font-size: 13px;
+    color: gray;
+    margin-bottom: 10px;
+}
+
+/* Post image */
+.post-card img {
+    width: 100%;
+    border-radius: 12px;
+    margin: 10px 0;
+    object-fit: cover;
+}
+
+/* Caption */
+.post-card .caption {
+    color: var(--color-accent-dark);
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+/* Share button */
+.post-card a.share-btn {
+    display: inline-block;
+    text-decoration: none;
+    background-color: var(--color-accent);
+    color: white;
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.post-card a.share-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px var(--color-accent-light);
+}

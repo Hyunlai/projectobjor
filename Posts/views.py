@@ -69,14 +69,13 @@ def post_list(request):
 def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     comments = Comment.objects.filter(post=post, parent_comment=None).order_by('-created_at')
-
     reaction_counts = post.react_set.values('type').annotate(count=Count('type'))
     post.reaction_counts = {item['type']: item['count'] for item in reaction_counts}
-
     post.user_reacted_type = None
     user_reaction = post.react_set.filter(user=request.user).first()
     if user_reaction:
         post.user_reacted_type = user_reaction.type
+        post.all_reactions = post.react_set.select_related('user', 'post').order_by('type')
 
     context = {
         'post': post,
@@ -258,3 +257,4 @@ def delete_comment(request, comment_id):
         return redirect(request.META.get('HTTP_REFERER', 'home'))
 
     return redirect(request.META.get('HTTP_REFERER', 'home'))
+

@@ -2,26 +2,19 @@
 {% load static %}
 <html lang="en">
 <head>
-    <style>
-        :root {
-            --color-accent: {{ profile.color_accent }};
-            --color-accent-light: {{ profile.color_accent_light }};
-            --color-accent-dark: {{ profile.color_accent_dark }};
-                }
-        </style>
     <meta charset="UTF-8">
     <title>ChinguLoop</title>
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% block extra_css %}{% endblock %}
     {% if request.user.is_authenticated %}
-<style>
-    :root {
-      --color-accent: {{ request.user.profile.color_accent }};
-      --color-accent-light: {{ request.user.profile.color_accent_light }};
-      --color-accent-dark: {{ request.user.profile.color_accent_dark }};
-    }
-</style>
-{% endif %}
+    <style>
+        :root {
+            --color-accent: {{ request.user.profile.color_accent }};
+            --color-accent-light: {{ request.user.profile.color_accent_light }};
+            --color-accent-dark: {{ request.user.profile.color_accent_dark }};
+        }
+    </style>
+    {% endif %}
 </head>
 <body class="private-bg">
     <header>
@@ -30,14 +23,18 @@
             <h1>ChinguLoop</h1>
         </div>
         <div class="header-center">
-            <input type="text" placeholder="🔍 Search ChinguLoop..." class="search-bar">
+            <form action="{% url 'search' %}" method="get" class="search-form">
+                <input type="text" name="q" placeholder="🔍 Search ChinguLoop..." class="search-bar">
+            </form>
         </div>
         <div class="header-right">
             {% if request.user.is_authenticated %}
-                <span>Hello, {{ request.user.username }} 💕</span>
+                <span>Hello, {{ request.user.username }} <img src="{% static 'icons/hearts.svg' %}" alt="Heart" class="reaction-icon">
+</span>
                 <form action="{% url 'logout' %}" method="post" class="logout-form">
                     {% csrf_token %}
-                    <button type="submit">🚪 Log Out</button>
+                    <button type="submit"><img src="{% static 'icons/door.svg' %}" alt="Door" class="reaction-icon"> <p class="logout-text">Log Out</p>
+</button>
                 </form>
             {% else %}
                 <a href="{% url 'login' %}">🔑 Log In</a>
@@ -50,10 +47,41 @@
         {% if request.user.is_authenticated %}
             <aside class="sidebar-left">
                 <nav>
-                    <a href="{% url 'home' %}">🏠    Home</a>
-                    <a href="{% url 'profile' username=request.user.username %}">👤  My Profile</a>
-                    <a href="{% url 'create_post' %}">➕ Create Post</a>
-                    <a href="{% url 'conversation_list' %}">💬 Messages </a>
+                    <a href="{% url 'home' %}">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 9.5L12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z" fill="currentColor"/>
+                        </svg>
+                        Home
+                    </a>
+                    <a href="{% url 'profile' username=request.user.username %}">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" fill="currentColor"/>
+                        </svg>
+                        My Profile
+                    </a>
+                    <a href="{% url 'create_post' %}">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 5v14m7-7H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Create Post
+                    </a>
+                    <a href="{% url 'conversation_list' %}">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="currentColor"/>
+                        </svg>
+                        Messages
+                    </a>
+
+                    {% if request.user.is_staff or request.user.is_superuser %}
+                    <a href="/admin/dashboard" class="admin-dashboard-btn">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.09a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+
+                        Admin Dashboard
+                    </a>
+                {% endif %}
                 </nav>
             </aside>
         {% endif %}
@@ -66,7 +94,12 @@
             <aside class="sidebar-right">
                 {% if people_you_may_know %}
                     <div class="widget">
-                        <h3>👥 People You May Know</h3>
+                        <h3>
+                            <svg class="icon" viewBox="0 0 24 24" fill="none">
+                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 2.06 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" fill="currentColor"/>
+                            </svg>
+                            People You May Know
+                        </h3>
                         <ul class="people-list">
                             {% for person in people_you_may_know %}
                                 <li>
@@ -84,16 +117,12 @@
                     </div>
                 {% endif %}
 
-                <div class="widget">
-                    <h3>💬 Latest Updates</h3>
-                    <p>Stay tuned for new features!</p>
-                </div>
             </aside>
         {% endif %}
     </div>
 
-    <footer>
-        <p>💖 Welcome to ChinguLoop 💖</p>
+    <footer class = "footer">
+        <p><img src="{% static 'icons/heart.svg' %}" alt="Hearts" class="reaction-icon"> Welcome to ChinguLoop <img src="{% static 'icons/heart.svg' %}" alt="Hearts" class="reaction-icon"></p>
     </footer>
 </body>
 </html>

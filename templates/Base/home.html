@@ -1,113 +1,134 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-    <h1>Welcome to Chinguloop!</h1>
+<link rel="stylesheet" href="{% static 'css/post.css' %}">
 
-    {% if request.user.profile.is_banned %}
-        <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px;">
-            <p>Your account is currently banned. You can view posts but are unable to create, share, react, or comment.</p>
+<h1></h1>
+
+{% if request.user.profile.is_banned %}
+    <div class="banned-banner">
+        <p>Your account is currently banned. You can view posts but are unable to create, share, react, or comment.</p>
+    </div>
+{% endif %}
+
+{% if posts %}
+    <h2>Latest Posts</h2>
+    {% for post in posts %}
+        <div class="post-container">
+            <a href="{% url 'profile' username=post.author.username %}" class="author-link">
+                {% if post.author.profile.profile_picture %}
+                    <img src="{{ post.author.profile.profile_picture.url }}" alt="{{ post.author.username }}'s profile picture" class="author-image">
+                {% else %}
+                    <img src="{{ post.author.profile.profile_picture.url }}" alt="Default profile picture" class="author-image">
+                {% endif %}
+            </a>
+            <p class="post-meta">
+                Posted by <a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a>
+                on {{ post.created_at|date:"F j, Y, P" }}
+            </p>
+
+            {% if post.original_post %}
+                <p class="shared-from">
+                    Shared from <a href="{% url 'profile' username=post.original_post.author.username %}">{{ post.original_post.author.username }}'s</a> post.
+                </p>
+            {% endif %}
+
+            <a href="{% url 'post_detail' post_id=post.id %}" class="post-link">
+                {% if post.image %}
+                    <img src="{{ post.image.url }}" class="post-media">
+                {% elif post.video %}
+                    <video controls class="post-media">
+                        <source src="{{ post.video.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                {% endif %}
+                <p class="post-caption">{{ post.caption }}</p>
+            </a>
+
+            {% if not request.user.profile.is_banned %}
+                {% if request.user == post.author %}
+                    <form method="post" action="{% url 'delete_post' post_id=post.id %}" class="inline-form">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-btn">Delete Post</button>
+                    </form>
+                {% endif %}
+
+                <a href="{% url 'share_post' post.id %}" class="share-link">Share</a>
+
+                <div class="reaction-counts" data-post-id="{{ post.id }}">
+                    <span>{{ post.reaction_counts.like|default:0 }} Like(s)</span>
+                    <span>{{ post.reaction_counts.love|default:0 }} Love(s)</span>
+                    <span>{{ post.reaction_counts.haha|default:0 }} Haha(s)</span>
+                    <span>{{ post.reaction_counts.wow|default:0 }} Wow(s)</span>
+                    <span>{{ post.reaction_counts.cry|default:0 }} Cry(s)</span>
+                    <span>{{ post.reaction_counts.angry|default:0 }} Angry(s)</span>
+                    <span>{{ post.reaction_counts.dislike|default:0 }} Dislike(s)</span>
+                </div>
+
+                <div class="reaction-buttons">
+                <a data-post-id="{{ post.id }}" data-reaction-type="like" class="react-btn {% if post.user_reacted_type == 'like' %}active-like{% endif %}" title="Like">
+                    <img src="{% static 'icons/like.svg' %}" alt="Like" class="reaction-icon">
+                </a>
+
+                <a data-post-id="{{ post.id }}" data-reaction-type="love" class="react-btn {% if post.user_reacted_type == 'love' %}active-love{% endif %}" title="Love">
+                    <img src="{% static 'icons/love.svg' %}" alt="Love" class="reaction-icon">
+                </a>
+
+                <a data-post-id="{{ post.id }}" data-reaction-type="haha" class="react-btn {% if post.user_reacted_type == 'haha' %}active-haha{% endif %}" title="Haha">
+                    <img src="{% static 'icons/laugh.svg' %}" alt="Haha" class="reaction-icon">
+                </a>
+
+                <a data-post-id="{{ post.id }}" data-reaction-type="wow" class="react-btn {% if post.user_reacted_type == 'wow' %}active-wow{% endif %}" title="Wow">
+                    <img src="{% static 'icons/wow.svg' %}" alt="Wow" class="reaction-icon">
+                </a>
+
+                <a data-post-id="{{ post.id }}" data-reaction-type="cry" class="react-btn {% if post.user_reacted_type == 'cry' %}active-cry{% endif %}" title="Cry">
+                    <img src="{% static 'icons/cry.svg' %}" alt="Cry" class="reaction-icon">
+                </a>
+
+                <a data-post-id="{{ post.id }}" data-reaction-type="angry" class="react-btn {% if post.user_reacted_type == 'angry' %}active-angry{% endif %}" title="Angry">
+                    <img src="{% static 'icons/angry.svg' %}" alt="Angry" class="reaction-icon">
+                </a>
+
+                <a data-post-id="{{ post.id }}" data-reaction-type="dislike" class="react-btn {% if post.user_reacted_type == 'dislike' %}active-dislike{% endif %}" title="Dislike">
+                    <img src="{% static 'icons/dislike.svg' %}" alt="Dislike" class="reaction-icon">
+                </a>
+                </div>
+
+
+                <div class="comments-section">
+                    <h4>Latest Comment</h4>
+                    <div id="latest-comment-{{ post.id }}" class="latest-comment">
+                        {% with latest_comment=post.comments.all|dictsort:"created_at"|last %}
+                            {% if latest_comment %}
+                                <div class="comment-item">
+                                    <p><strong>{{ latest_comment.author.username }}</strong>: {{ latest_comment.text }}</p>
+                                    {% if request.user == latest_comment.author %}
+                                        <form method="post" action="{% url 'delete_comment' comment_id=latest_comment.id %}" class="inline-form">
+                                            {% csrf_token %}
+                                            <button type="submit" class="delete-btn small">Delete</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <p class="no-comments">No comments yet.</p>
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <form method="post" action="{% url 'add_comment' post_id=post.id %}" class="add-comment-form">
+                        {% csrf_token %}
+                        <textarea name="text" placeholder="Add a comment..." required></textarea>
+                        <button type="submit" class="comment-btn">Comment</button>
+                    </form>
+                </div>
+            {% endif %}
         </div>
-    {% endif %}
-
-    {% if posts %}
-        <h2>Latest Posts</h2>
-        {% for post in posts %}
-            <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
-                <a href="{% url 'profile' username=post.author.username %}" style="text-decoration: none; color: inherit;">
-                    {% if post.author.profile.profile_picture %}
-                        <img src="{{ post.author.profile.profile_picture.url }}" alt="{{ post.author.username }}'s profile picture" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
-                    {% else %}
-                        <img src="{{ post.author.profile.profile_picture.url }}" alt="Default profile picture" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;">
-                    {% endif %}
-                </a>
-                <p style="display:inline;">Posted by <a href="{% url 'profile' username=post.author.username %}">{{ post.author.username }}</a> on {{ post.created_at|date:"F j, Y, P" }}</p>
-
-                {% if post.original_post %}
-                    <p>Shared from <a href="{% url 'profile' username=post.original_post.author.username %}">{{ post.original_post.author.username }}'s</a> post.</p>
-                {% endif %}
-
-                <a href="{% url 'post_detail' post_id=post.id %}" style="text-decoration: none; color: inherit;">
-                    {% if post.image %}
-                        <a href="{% url 'post_detail' post_id=post.id %}">
-                            <img src="{{ post.image.url }}" style="max-width: 100%; max-height: 400px; display: block; margin: 10px auto;">
-                        </a>
-                    {% elif post.video %}
-                        <a href="{% url 'post_detail' post_id=post.id %}">
-                            <video controls style="max-width: 100%; max-height: 400px; display: block; margin: 10px auto;">
-                                <source src="{{ post.video.url }}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </a>
-                    {% endif %}
-                    <p>{{ post.caption }}</p>
-                </a>
-
-                {% if not request.user.profile.is_banned %}
-                    {% if request.user == post.author %}
-                        <form method="post" action="{% url 'delete_post' post_id=post.id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit">Delete Post</button>
-                        </form>
-                    {% endif %}
-
-                    <a href="{% url 'share_post' post.id %}">Share</a>
-
-                    <div class="reaction-counts" data-post-id="{{ post.id }}" style="margin-top: 10px;">
-                        <span>{{ post.reaction_counts.like|default:0 }} Like(s)</span>
-                        <span>{{ post.reaction_counts.love|default:0 }} Love(s)</span>
-                        <span>{{ post.reaction_counts.haha|default:0 }} Haha(s)</span>
-                        <span>{{ post.reaction_counts.wow|default:0 }} Wow(s)</span>
-                        <span>{{ post.reaction_counts.cry|default:0 }} Cry(s)</span>
-                        <span>{{ post.reaction_counts.angry|default:0 }} Angry(s)</span>
-                        <span>{{ post.reaction_counts.dislike|default:0 }} Dislike(s)</span>
-                    </div>
-
-                    <div style="margin-top: 5px;">
-                        <a data-post-id="{{ post.id }}" data-reaction-type="like" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'like' %}lightblue{% endif %};">Like</a>
-                        <a data-post-id="{{ post.id }}" data-reaction-type="love" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'love' %}pink{% endif %};">Love</a>
-                        <a data-post-id="{{ post.id }}" data-reaction-type="haha" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'haha' %}yellow{% endif %};">Haha</a>
-                        <a data-post-id="{{ post.id }}" data-reaction-type="wow" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'wow' %}orange{% endif %};">Wow</a>
-                        <a data-post-id="{{ post.id }}" data-reaction-type="cry" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'cry' %}gray{% endif %};">Cry</a>
-                        <a data-post-id="{{ post.id }}" data-reaction-type="angry" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'angry' %}red{% endif %};">Angry</a>
-                        <a data-post-id="{{ post.id }}" data-reaction-type="dislike" class="react-btn btn btn-primary" style="background-color: {% if post.user_reacted_type == 'dislike' %}black{% endif %};">Dislike</a>
-                    </div>
-
-                    <div style="margin-top: 15px;">
-                        <h4>Latest Comment</h4>
-                        <div id="latest-comment-{{ post.id }}">
-                            {% with latest_comment=post.comments.all|dictsort:"created_at"|last %}
-                                {% if latest_comment %}
-                                    <div style="border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px;">
-                                        <p style="display:inline;"><strong>{{ latest_comment.author.username }}</strong>: {{ latest_comment.text }}</p>
-                                        {% if request.user == latest_comment.author %}
-                                            <form method="post" action="{% url 'delete_comment' comment_id=latest_comment.id %}" style="display:inline; margin-left: 10px;">
-                                                {% csrf_token %}
-                                                <button type="submit">Delete</button>
-                                            </form>
-                                        {% endif %}
-                                    </div>
-                                {% else %}
-                                    <p>No comments yet.</p>
-                                {% endif %}
-                            {% endwith %}
-                        </div>
-
-                        <div style="margin-top: 15px;">
-                            <form method="post" action="{% url 'add_comment' post_id=post.id %}" class="add-comment-form">
-                                {% csrf_token %}
-                                <input type="hidden" name="post_id" value="{{ post.id }}">
-                                <textarea name="text" placeholder="Add a comment..." required></textarea>
-                                <button type="submit">Comment</button>
-                            </form>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No posts to display yet.</p>
-    {% endif %}
-
+    {% endfor %}
+{% else %}
+    <p>No posts to display yet.</p>
+{% endif %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
@@ -195,5 +216,4 @@
         });
     });
 </script>
-
 {% endblock %}

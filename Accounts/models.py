@@ -7,6 +7,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_picture = models.ImageField(default='default/default.jpg', upload_to='profile_pics')
     profile_banner = models.ImageField(default='default/banner.jpg', upload_to='profile_banners')
+    profile_song = models.FileField(upload_to='profile_song/', blank=True, null=True)
     bio = models.TextField(blank=True)
     is_banned = models.BooleanField(default=False)
 

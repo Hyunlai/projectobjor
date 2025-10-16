@@ -1,22 +1,37 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/post_list.css' %}">
+{% endblock %}
+
 {% block content %}
-    <h2>Latest Posts</h2>
+<h2>Latest Posts</h2>
+<div class="posts-container">
     {% for post in posts %}
-        <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+        <div class="post-card">
             {% if post.original_post %}
-                <p>Shared from <a href="{% url 'profile' username=post.original_post.author.username %}">{{ post.original_post.author.username }}'s</a> post.</p>
+                <p class="shared-label">
+                    Shared from <a href="{% url 'profile' username=post.original_post.author.username %}">
+                    {{ post.original_post.author.username }}'s</a> post.
+                </p>
             {% endif %}
 
-            <p>Posted by {{ post.author.username }} on {{ post.created_at|date:"F j, Y, P" }}</p>
+            <p class="post-meta">
+                Posted by {{ post.author.username }} on {{ post.created_at|date:"F j, Y, P" }}
+            </p>
+
             {% if post.image %}
-                <img src="{{ post.image.url }}" style="max-width: 100%; height: auto;">
+                <img src="{{ post.image.url }}" alt="Post image">
             {% endif %}
-            <p>{{ post.caption }}</p>
 
-            <a href="{% url 'share_post' post.id %}">Share</a>
+            <p class="caption">{{ post.caption }}</p>
+
+            <a href="{% url 'share_post' post.id %}" class="share-btn">Share</a>
         </div>
     {% empty %}
         <p>No posts to display yet.</p>
     {% endfor %}
+</div>
 {% endblock %}

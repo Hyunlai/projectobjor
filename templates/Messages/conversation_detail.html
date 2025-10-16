@@ -1,25 +1,55 @@
 {% extends 'base.html' %}
-{% block content %}
-<h2>Conversation with
-  {% for user in conversation.participants.all %}
-    {% if user != request.user %}{{ user.username }} {% endif %}
-  {% endfor %}
-</h2>
-<div style="border:1px solid #ccc; padding:10px; margin-bottom:20px; max-height:400px; overflow-y:auto;">
-  {% for message in messages %}
-    <div style="margin-bottom:10px;">
-      <strong>{{ message.sender.username }}:</strong> {{ message.content }}
-      <span style="font-size:0.8em; color:#888;">({{ message.timestamp|date:'SHORT_DATETIME_FORMAT' }})</span>
-    </div>
-  {% empty %}
-    <p>No messages yet.</p>
-  {% endfor %}
-</div>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Send</button>
-</form>
-<a href="{% url 'conversation_list' %}">Back to Conversations</a>
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
 {% endblock %}
+{% block content %}
+{% if request.user.profile.is_banned %}
+        <div style="text-align: center; margin-top: 20px; padding: 15px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 5px;">
+            <p>Your account is currently banned. You can view posts but are unable to create, share, react, or comment.</p>
+        </div>
+{% else %}
+<div class="email-thread-container">
+    <div class="email-header">
+        <h2 class="email-subject">Conversation with
+            {% for user in conversation.participants.all %}
+                {% if user != request.user %}{{ user.username }}{% endif %}
+            {% endfor %}
+        </h2>
+    </div>
 
+    <div class="email-body-scroll">
+        <div class="email-thread">
+            {% for message in messages %}
+
+                <div class="email-message-block {% if message.sender == request.user %}sender-self{% else %}sender-other{% endif %}">
+
+                    <div class="message-meta">
+                        <strong class="message-sender">{{ message.sender.username }}</strong>
+                        <span class="message-timestamp">({{ message.timestamp|date:'SHORT_DATETIME_FORMAT' }})</span>
+                    </div>
+
+                    <div class="message-content">
+                        {{ message.content }}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="no-messages">No messages yet. Start a new email exchange!</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="email-reply-area">
+        <h3>Reply</h3>
+        <form method="post" class="reply-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="send-email-button">Send Email</button>
+        </form>
+    </div>
+
+    <a href="{% url 'conversation_list' %}" class="back-link">← Back to Inbox</a>
+
+</div>
+{% endif %}
+{% endblock %}

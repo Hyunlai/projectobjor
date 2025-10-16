@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Access Denied</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: var(--bg-main, #f0f0f0);
+            color: var(--color-accent-dark, #333);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .forbidden-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            max-width: 400px;
+        }
+
+        .forbidden-container h1 {
+            font-size: 3rem;
+            color: var(--color-accent, #ff5e5e);
+        }
+
+        .forbidden-container p {
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+
+        .forbidden-container a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: var(--color-accent, #ff5e5e);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .forbidden-container a:hover {
+            background: var(--color-accent-dark, #e04b4b);
+        }
+    </style>
+</head>
+<body>
+    <div class="forbidden-container">
+        <h1>🚫 403</h1>
+        <p>You do not have permission to access this page.</p>
+        <a href="{% url 'home' %}">Go Back Home</a>
+    </div>
+</body>
+</html>

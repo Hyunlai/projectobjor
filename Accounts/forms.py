@@ -22,4 +22,13 @@ class UserUpdateForm(forms.ModelForm):
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['profile_picture', 'bio' , 'profile_banner' , 'color_accent']
+        fields = ['profile_picture', 'bio' , 'profile_banner' , 'color_accent', 'profile_song',]
+
+    def clean_profile_song(self):
+        song = self.cleaned_data.get('profile_song')
+        if song:
+            if song.size > 10 * 1024 * 1024:  # 10 MB limit
+                raise forms.ValidationError("Profile song must be under 5MB.")
+            if not song.name.endswith('.mp3'):
+                raise forms.ValidationError("Only MP3 files are allowed.")
+        return song

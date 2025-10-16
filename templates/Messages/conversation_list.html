@@ -1,20 +1,69 @@
 {% extends 'base.html' %}
-{% block content %}
-<h2>Your Conversations</h2>
-<a href="{% url 'new_conversation' %}">Start New Conversation</a>
-<ul>
-  {% for conversation in conversations %}
-    <li>
-      <a href="{% url 'conversation_detail' conversation.id %}">
-        Conversation {{ conversation.id }} with
-        {% for user in conversation.participants.all %}
-          {% if user != request.user %}{{ user.username }} {% endif %}
-        {% endfor %}
-      </a>
-    </li>
-  {% empty %}
-    <li>No conversations yet.</li>
-  {% endfor %}
-</ul>
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/inbox.css' %}">
 {% endblock %}
 
+{% block content %}
+<div class="inbox-container">
+
+    <div class="inbox-header">
+        <h2>Your Conversations</h2>
+        <a href="{% url 'new_conversation' %}" class="btn-new-message">
+            Start New Conversation
+        </a>
+    </div>
+
+    <ul class="conversation-list">
+        {% for conversation in conversations %}
+            {% for user in conversation.participants.all %}
+                {% if user != request.user %}
+                    {% with other_user=user %}
+                        <li class="conversation-item">
+                            <a href="{% url 'conversation_detail' conversation.id %}" class="conversation-link">
+                                <!-- Profile Picture -->
+                                <div class="profile-circle">
+                                    {% if other_user.profile.profile_picture %}
+                                        <img src="{{ other_user.profile.profile_picture.url }}" alt="{{ other_user.username }}">
+                                    {% else %}
+                                        <img src="{% static 'images/default.png' %}" alt="{{ other_user.username }}">
+                                    {% endif %}
+                                </div>
+
+                                <div class="conversation-info">
+                                    <span class="conversation-partner">
+                                        <strong>{{ other_user.username }}</strong>
+                                        {% if request.user in other_user.followers.all %}
+                                            <span class="badge-followed">Followed</span>
+                                        {% endif %}
+                                    </span>
+
+                                    {% if conversation.last_message %}
+                                        <span class="last-message">{{ conversation.last_message.text|truncatechars:50 }}</span>
+                                    {% else %}
+                                        <span class="last-message">
+                                        {% if conversation.last_message %}
+                                        {{ conversation.last_message.text|truncatechars:50 }}
+                                        {% else %}
+                                        <em>Continue Message</em>
+                                        {% endif %}
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <span class="view-link">→</span>
+                            </a>
+                        </li>
+                    {% endwith %}
+                {% endif %}
+            {% endfor %}
+        {% empty %}
+            <li class="no-conversations">
+                <p>You have no ongoing conversations yet. Click "Start New Conversation" to chat!</p>
+            </li>
+        {% endfor %}
+    </ul>
+
+</div>
+{% endblock %}

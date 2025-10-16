@@ -25,7 +25,11 @@ urlpatterns = [
     path('accounts/', include('Accounts.urls')),
     path('posts/', include('Posts.urls')),
     path('messages/', include('Messages.urls')),
+
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    handler403 = 'django.views.defaults.permission_denied'
+    handler404 = 'django.views.defaults.page_not_found'

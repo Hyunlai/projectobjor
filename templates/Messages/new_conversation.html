@@ -1,11 +1,30 @@
 {% extends 'base.html' %}
-{% block content %}
-<h2>Start a New Conversation</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Start Conversation</button>
-</form>
-<a href="{% url 'conversation_list' %}">Back to Conversations</a>
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
 {% endblock %}
+{% block content %}
 
+<div class="form-page-container">
+
+    <h2 class="form-title">Start a New Conversation (New Email)</h2>
+
+    <div class="new-conversation-form-box">
+        <form method="post" class="styled-form">
+            {% csrf_token %}
+
+            <div class="form-fields">
+                {{ form.as_p }}
+            </div>
+
+            <button type="submit" class="new-conversation-button">
+                Start Conversation
+            </button>
+        </form>
+    </div>
+
+    <a href="{% url 'conversation_list' %}" class="back-link">← Back to Inbox</a>
+
+</div>
+
+{% endblock %}

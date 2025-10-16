@@ -11,17 +11,18 @@ from Admin.models import Admin
 from django.contrib.auth.models import User
 # Create your views here.
 
-def lighten_color(hex_color, factor=0.2):
+def lighten_color(hex_color, factor=0.2, max_light=220):
     hex_color = hex_color.lstrip('#')
     rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
-    lightened = tuple(min(int(c + (255 - c) * factor), 255) for c in rgb)
+    lightened = tuple(min(int(c + (255 - c) * factor), max_light) for c in rgb)
     return '#' + ''.join(f'{c:02x}' for c in lightened)
 
-def darken_color(hex_color, factor=0.2):
+def darken_color(hex_color, factor=0.2, min_dark=30):
     hex_color = hex_color.lstrip('#')
     rgb = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
-    darkened = tuple(max(int(c * (1 - factor)), 0) for c in rgb)
+    darkened = tuple(max(int(c * (1 - factor)), min_dark) for c in rgb)
     return '#' + ''.join(f'{c:02x}' for c in darkened)
+
 
 def register(request):
     if request.method == 'POST':
@@ -44,6 +45,7 @@ def profile(request, username):
         profile.color_accent = request.POST.get('color_accent', profile.color_accent)
         profile.color_accent_light = request.POST.get('color_accent_light', profile.color_accent_light)
         profile.color_accent_dark = request.POST.get('color_accent_dark', profile.color_accent_dark)
+        profile.color_contrast_color = request.POST.get('color_contrast_color', profile.color_contrast_color)
         profile.save()
         return redirect('profile', username=username)
 
@@ -148,3 +150,17 @@ def custom_login(request):
     else:
         form = AuthenticationForm()
     return render(request, 'Accounts/login.html', {'form': form})
+
+
+
+def profile_view(request, username):
+    user = get_object_or_404(User, username=username)
+    profile = user.profile
+    posts = Post.objects.filter(author=user).order_by('-created_at')
+
+    context = {
+        'user': user,
+        'profile': profile,
+        'posts': posts,
+    }
+    return render(request, 'profile.html', context)

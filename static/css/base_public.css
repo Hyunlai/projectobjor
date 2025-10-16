@@ -1,4 +1,10 @@
-
+.reaction-icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  fill: currentColor;
+  display: inline-block;
+}
     * {
         margin: 0;
         padding: 0;
@@ -74,3 +80,4 @@
         width: auto;
         display: block;
     }
+

@@ -1,22 +1,43 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/create_post.css' %}">
+{% endblock %}
 
 {% block content %}
-    <h1>Create a New Post</h1>
-    <form method="post" enctype="multipart/form-data">
+<div class="create-post-container">
+    <h1>Create a New Post<svg class="cute-star" width="40" height="30" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 2l2.9 6 6.6.9-4.8 4.7 1.1 6.5L12 16.5 7.2 20l1.1-6.5L3.5 8.9l6.6-.9L12 2z" fill="var(--color-accent)"/>
+</svg>
+</h1>
+
+    <form method="post" enctype="multipart/form-data" class="create-post-form">
         {% csrf_token %}
-        <label for="id_image">Image:</label>
-        {{ form.image }}
-        <br>
-        <label for="id_video">Video:</label>
-        {{ form.video }}
-        <br>
-        <label for="id_caption">Caption:</label>
-        {{ form.caption }}
-        <br>
-        <label>Privacy:</label>
-        <br>
-        {{ form.visibility }}
-        <br>
-        <button type="submit">Post</button>
+
+        <div class="form-group">
+            <label for="id_image">Image</label>
+            {{ form.image }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_video">Video</label>
+            {{ form.video }}
+        </div>
+
+        <div class="form-group">
+            <label for="id_caption">Caption</label>
+            {{ form.caption }}
+        </div>
+
+        <div class="form-group">
+            <label>Privacy</label>
+            {{ form.visibility }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-post">Post</button>
+        </div>
     </form>
+</div>
 {% endblock %}

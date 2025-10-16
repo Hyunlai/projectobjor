@@ -122,10 +122,8 @@ input:focus {
     text-align: center;
 }
 
-.icon {
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.125em;
-  fill: currentColor;
-  display: inline-block;
+.reaction-icon {
+    width: 25px;    /* or whatever size fits */
+    height: 25px;
+    transition: transform 0.2s, filter 0.2s;
 }

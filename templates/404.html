@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="error-404-container">
+    <img src="{% static 'images/Logo.png' %}" alt="ChinguLoop Logo" class="error-logo">
+    <h1>404 - Page Not Found</h1>
+    <p>Oops! The page you’re looking for doesn’t exist… or maybe it ran away 🏃‍♂️💨</p>
+    <a href="{% url 'home' %}" class="btn-home">🏠 Go Back Home</a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.error-404-container {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--color-accent-dark);
+    background-color: var(--bg-main);
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.error-logo {
+    width: 120px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.error-404-container h1 {
+    font-size: 3rem;
+    color: var(--color-accent);
+    margin-bottom: 10px;
+}
+
+.error-404-container p {
+    font-size: 1.2rem;
+    max-width: 500px;
+}
+
+.btn-home {
+    display: inline-block;
+    padding: 10px 25px;
+    font-size: 1rem;
+    background-color: var(--color-accent);
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.btn-home:hover {
+    background-color: var(--color-accent-dark);
+}
+</style>
+{% endblock %}

@@ -127,6 +127,7 @@
     border: 2px solid var(--color-accent);
     background: white;
     color: var(--color-accent);
+    text-align: center;
     cursor: pointer;
     font-size: 0.8rem;
     transition: 0.2s ease;
@@ -147,37 +148,39 @@
     transform: translateZ(0); /* stabilize */
 }
 
-/* ===== Placeholder for no posts ===== */
-.posts p {
-    text-align: center;
-    color: #666;
-    font-style: italic;
-    margin-top: 20px;
+
+.floating-song-widget {
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    width: 200px;
+    padding: 3px 5px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    opacity: 0.05;
+    transition: opacity 0.4s ease;
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 650px) {
-    .main-profile {
-        width: 100%; /* allow full width on mobile */
-        padding: 15px;
-    }
-
-    .main-profile-header h1 {
-        font-size: 1.4rem;
-    }
-
-    .profile-banner {
-        height: 70px;
-    }
-
-    .profile-pic {
-        width: 100px;
-        height: 100px;
-        top: 35px;
-    }
-
-    .post {
-        margin: 10px 0;
-        padding: 10px;
-    }
+.floating-song-widget:hover {
+    opacity: 1;
 }
+
+.floating-song-widget .song-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.floating-song-widget input[type="range"] {
+    width: 60px;
+}
+

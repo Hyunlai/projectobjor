@@ -85,17 +85,21 @@
                 <input type="color" id="color_accent" name="color_accent" class="color-picker" value="{{ user.profile.color_accent|default:'#ff4da6' }}">
             </div>
 
-            <!-- Profile Song (coming soon) -->
-            <div class="form-group disabled">
-                <label for="profile_song">Profile Song (Coming Soon ✨)</label>
-                <input type="file" id="profile_song" accept="audio/*" disabled>
+            <!-- Profile Songs -->
+            <div class="form-group">
+                <label for="id_profile_song">Profile Song (MP3, max 10MB):</label>
+                    {{ profile_form.profile_song }}
+                    {% if user.profile.profile_song %}
+                        <p>Current song: <a href="{{ user.profile.profile_song.url }}" target="_blank">Listen 🎧</a></p>
+                    <p id="songName" class="song-name">{{ profile.profile_song.name|cut:"profile_song/" }}</p>
+                    {% endif %}
             </div>
-        </div>
 
         <!-- ===== BUTTONS ===== -->
         <div class="form-actions">
             <button type="submit" class="btn-save">💾 Save Changes</button>
             <a href="{% url 'profile' user.username %}" class="btn-cancel">Cancel</a>
+        </div>
         </div>
     </form>
 </div>
