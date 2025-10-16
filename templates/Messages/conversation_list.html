@@ -66,4 +66,31 @@
     </ul>
 
 </div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const filterButtons = document.querySelectorAll(".filter-btn");
+    const conversations = document.querySelectorAll(".conversation-item");
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            // Remove active from all buttons
+            filterButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            const filter = btn.dataset.filter;
+
+            conversations.forEach(conv => {
+                conv.style.display = "flex"; // default
+
+                if(filter === "followed" && !conv.classList.contains("followed")) {
+                    conv.style.display = "none";
+                }
+                if(filter === "not-followed" && !conv.classList.contains("not-followed")) {
+                    conv.style.display = "none";
+                }
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

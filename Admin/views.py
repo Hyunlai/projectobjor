@@ -15,6 +15,7 @@ def admin_dashboard(request):
         if request.user.is_authenticated and Admin.objects.get(user=request.user).is_admin:
             posts = Post.objects.all().order_by('-created_at')
             return render(request, 'Admin/admin_dashboard.html', {'posts': posts})
+
     except Admin.DoesNotExist:
         return redirect('home')
 

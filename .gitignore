@@ -1,6 +1,2 @@
 .venv
 db.sqlite3
-
-/media/*
-!/media/default/
-!/media/default/*

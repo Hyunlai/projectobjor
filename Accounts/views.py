@@ -48,7 +48,14 @@ def profile(request, username):
         profile.color_contrast_color = request.POST.get('color_contrast_color', profile.color_contrast_color)
         profile.save()
         return redirect('profile', username=username)
-
+        # "People you may know" — random users excluding self and followed
+        all_users = User.objects.exclude(id=request.user.id).exclude(id__in=following_users)
+        people_you_may_know = sample(list(all_users), min(len(all_users), 6))
+    else:
+        # Anonymous users: only public posts
+        posts = Post.objects.filter(visibility='PUBLIC', author__profile__is_banned=False) \
+            .order_by('-created_at').prefetch_related('react_set')
+        people_you_may_know = []
     if request.user.is_authenticated:
         is_following = Follower.objects.filter(follower=request.user, following=user).exists()
         following_users = Follower.objects.filter(follower=request.user).values_list('following', flat=True)
