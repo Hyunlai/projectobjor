@@ -5,48 +5,48 @@
 <link rel="stylesheet" href="{% static 'css/auth.css' %}">
 
 <div class="auth-container">
-    <h1 class="auth-title">💖 Register</h1>
+    <h1 class="auth-title"><img src="{% static 'icons/heart.svg' %}" alt="Heart" class="reaction-icon"> Register</h1>
 
     <form method="post" class="auth-form">
         {% csrf_token %}
 
         <div class="form-group">
-            <label for="id_username">👤 Username</label>
+            <label for="id_username"><img src="{% static 'icons/person.svg' %}" alt="Person" class="reaction-icon"> Username</label>
             <input type="text" name="username" id="id_username" required>
         </div>
 
         <div class="form-group">
-            <label for="id_email">📧 Email</label>
+            <label for="id_email"><img src="{% static 'icons/envelope.svg' %}" alt="Envelope" class="reaction-icon"> Email</label>
             <input type="email" name="email" id="id_email" required>
         </div>
 
         <div class="form-group">
-            <label for="id_password1">🔒 Password</label>
+            <label for="id_password1"><img src="{% static 'icons/lock.svg' %}" alt="Lock" class="reaction-icon"> Password</label>
             <div class="password-wrapper">
                 <input type="password" name="password1" id="id_password1" required>
-                <button type="button" class="toggle-password" onclick="togglePasswordVisibility('id_password1')">👁</button>
+                <button type="button" class="toggle-password" onclick="togglePasswordVisibility('id_password1')"><img src="{% static 'icons/eye.svg' %}" alt="Eye" class="reaction-icon"></button>
             </div>
         </div>
 
         <div class="form-group">
-            <label for="id_password2">🔒 Confirm Password</label>
+            <label for="id_password2"><img src="{% static 'icons/lock.svg' %}" alt="Lock" class="reaction-icon"> Confirm Password</label>
             <div class="password-wrapper">
                 <input type="password" name="password2" id="id_password2" required>
-                <button type="button" class="toggle-password" onclick="togglePasswordVisibility('id_password2')">👁</button>
+                <button type="button" class="toggle-password" onclick="togglePasswordVisibility('id_password2')"><img src="{% static 'icons/eye.svg' %}" alt="Eye" class="reaction-icon"></button>
             </div>
         </div>
 
-        <button type="submit" class="auth-btn">✨ Register</button>
+        <button type="submit" class="auth-btn">Register</button>
         {% if form.errors %}
             <div class="auth-error">
         <ul>
             {% for field in form %}
                 {% for error in field.errors %}
-                    <li>⚠️ {{ error }}</li>
+                    <li><img src="{% static 'icons/warning.svg' %}" alt="Warning" class="reaction-icon"> {{ error }}</li>
                 {% endfor %}
             {% endfor %}
             {% for error in form.non_field_errors %}
-                <li>⚠️ {{ error }}</li>
+                <li><img src="{% static 'icons/warning.svg' %}" alt="Warning" class="reaction-icon"> {{ error }}</li>
             {% endfor %}
         </ul>
     </div>

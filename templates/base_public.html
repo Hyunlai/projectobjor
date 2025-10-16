@@ -14,15 +14,15 @@
         <span style="align-self:center; color:#660033;">
         </span>
         {% if request.user.is_authenticated %}
-            <a href="{% url 'profile' username=request.user.username %}">👤 Profile</a>
-            <a href="{% url 'create_post' %}">➕ Post</a>
+            <a href="{% url 'profile' username=request.user.username %}"> Profile</a>
+            <a href="{% url 'create_post' %}"> Post</a>
             <form action="{% url 'logout' %}" method="post" style="display:inline;">
                 {% csrf_token %}
-                <button type="submit">🚪 Log Out</button>
+                <button type="submit"> Log Out</button>
             </form>
         {% else %}
-            <a href="{% url 'login' %}">🔑 Log In</a>
-            <a href="{% url 'register' %}">📝 Register</a>
+            <a href="{% url 'login' %}"><img src="{% static 'icons/key.svg' %}" alt="Key" class="reaction-icon"> Log In</a>
+            <a href="{% url 'register' %}"><img src="{% static 'icons/paper.svg' %}" alt="Paper" class="reaction-icon"> Register</a>
         {% endif %}
     </nav>
 
@@ -32,7 +32,7 @@
     </main>
 
     <footer>
-        <p>💖 Welcome to ChinguLoop — Your friendly throwback social hub 💖</p>
+        <p><img src="{% static 'icons/heart.svg' %}" alt="Heart" class="reaction-icon"> Welcome to ChinguLoop — Your friendly throwback social hub <img src="{% static 'icons/heart.svg' %}" alt="Heart" class="reaction-icon"></p>
     </footer>
 </body>
 </html>

@@ -37,8 +37,8 @@
 </button>
                 </form>
             {% else %}
-                <a href="{% url 'login' %}">🔑 Log In</a>
-                <a href="{% url 'register' %}">📝 Register</a>
+                <a href="{% url 'login' %}"><img src="{% static 'icons/key.svg' %}" alt="Key" class="reaction-icon"> Log In</a>
+                <a href="{% url 'register' %}"><img src="{% static 'icons/paper.svg' %}" alt="Paper" class="reaction-icon"> Register</a>
             {% endif %}
         </div>
     </header>
@@ -116,7 +116,6 @@
                         </ul>
                     </div>
                 {% endif %}
-
             </aside>
         {% endif %}
     </div>
