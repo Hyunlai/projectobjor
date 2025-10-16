@@ -23,7 +23,6 @@
   - [x] Post comment section
 - [x] Moderation
   - [x] User Banning
-  - [ ] User Suspending
   - [x] Post Deletion
 
 ***
@@ -42,13 +41,8 @@ These features were not part of the original proposal but have been implemented 
 - **Post Detail Page**
   - [x] Create a dedicated post detail page for each post
 - **Dynamic Content**
-  - [ ] Dynamically update reactions without page refresh
-  - [ ] Dynamically update reaction counters
+  - [x] Dynamically update reactions without page refresh
+  - [x] Dynamically update reaction counters
   - [x] Dynamically add new comments
 
 ***
-
-### Concurrent Bugs & Known Issues
-
-- **WIP**: Messaging System
-
