@@ -1,0 +1,124 @@
+/*  Create Post Page Style */
+.create-post-container {
+    max-width: 600px;
+    margin: 2px auto;
+    background-color: var(--color-accent-light);
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 30px 40px;
+    color: #333;
+    font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+/*  Heading */
+.create-post-container h1 {
+    font-size: 26px;
+    color: var(--color-accent-dark);
+    text-align: center;
+    margin-bottom: 25px;
+    text-shadow: 1px 1px 2px var(--color-accent);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.cute-star {
+    animation: sparkle 1.5s infinite ease-in-out;
+}
+
+@keyframes sparkle {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(10deg) scale(1.2); }
+}
+
+/*  Form fields */
+.create-post-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: var(--color-accent-dark);
+}
+
+.create-post-form input[type="file"],
+.create-post-form select,
+.create-post-form textarea,
+.create-post-form input[type="text"] {
+    border: 2px solid var(--color-accent);
+    border-radius: 12px;
+    padding: 10px;
+    background-color: #fff;
+    font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.create-post-form textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Focus glow */
+.create-post-form input:focus,
+.create-post-form textarea:focus,
+.create-post-form select:focus {
+    outline: none;
+    border-color: var(--color-accent-dark);
+    box-shadow: 0 0 6px var(--color-accent-light);
+}
+
+/*  Post button */
+.btn-post {
+    background-color: var(--color-accent);
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 20px;
+    font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+.btn-post:hover {
+    background-color: var(--color-accent-dark);
+    transform: scale(1.05);
+    box-shadow: 0 0 10px var(--color-accent-light);
+}
+
+/* Little floating sparkles for extra cuteness */
+.create-post-container::before,
+.create-post-container::after {
+    content: "";
+    position: absolute;
+    font-size: 24px;
+    color: var(--color-accent);
+    animation: floaty 4s infinite ease-in-out;
+}
+
+.create-post-container::before {
+    top: 10px;
+    left: 20px;
+    animation-delay: 1s;
+}
+
+.create-post-container::after {
+    bottom: 10px;
+    right: 25px;
+    animation-delay: 2s;
+}
+
+@keyframes floaty {
+    0%, 100% { transform: translateY(0) rotate(0); opacity: 0.7; }
+    50% { transform: translateY(-10px) rotate

@@ -1,0 +1,115 @@
+.admin-dashboard-container {
+    background: rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(5px);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.dashboard-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--color-accent);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.dashboard-subtitle {
+    color: var(--text-muted, #888);
+    margin-bottom: 25px;
+    font-style: italic;
+}
+
+.admin-post-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--color-accent, #3498db);
+    border-left: 5px solid var(--color-accent, #3498db);
+    padding: 15px;
+    margin-bottom: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.admin-post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.username {
+    font-weight: 600;
+    color: var(--color-accent, #3498db);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.username:hover {
+    color: var(--color-accent-hover, #2a7dc9);
+}
+
+.admin-badge {
+    background: var(--color-accent, #3498db);
+    color: #fff;
+    font-size: 0.75em;
+    padding: 2px 6px;
+    border-radius: 6px;
+    letter-spacing: 0.5px;
+}
+
+.action-buttons form {
+    display: inline;
+    margin-left: 8px;
+}
+
+.btn-delete, .btn-ban, .btn-unban {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.25s ease, transform 0.1s ease;
+}
+.btn-delete:hover, .btn-ban:hover, .btn-unban:hover {
+    transform: scale(1.05);
+}
+
+.btn-delete {
+    background: #ff4d4d;
+    color: #fff;
+}
+.btn-ban {
+    background: #ff9f43;
+    color: #fff;
+}
+.btn-unban {
+    background: #2ecc71;
+    color: #fff;
+}
+
+.post-body {
+    margin-top: 10px;
+}
+.post-image {
+    margin-top: 8px;
+    border-radius: 10px;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.no-posts {
+    text-align: center;
+    font-size: 1rem;
+    color: #666;
+    margin-top: 30px;
+    font-style: italic;
+}
